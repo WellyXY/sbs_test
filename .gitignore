@@ -49,6 +49,19 @@ coverage/
 .nyc_output/
 .coverage
 
+# 視頻文件 (太大不適合Git)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# 測試視頻目錄
+06:06DMD/
+Pika*/
+ShanghaiDMD/
+check*/
+
 # 其他
 .cache/
 .parcel-cache/ 
