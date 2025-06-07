@@ -1,0 +1,626 @@
+{
+  "3d7ec584-ab4b-429a-8a5a-ab62930580d4": {
+    "id": "3d7ec584-ab4b-429a-8a5a-ab62930580d4",
+    "video_pair_id": "test",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271528.527354
+  },
+  "ac53397a-9d7f-49ae-842a-8a6df85fceae": {
+    "id": "ac53397a-9d7f-49ae-842a-8a6df85fceae",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271556.592553
+  },
+  "72fb6b38-a75d-495f-945f-a5b280554673": {
+    "id": "72fb6b38-a75d-495f-945f-a5b280554673",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_1",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271563.105798
+  },
+  "c45bd4d4-86f5-4a84-84e3-2658942d8e46": {
+    "id": "c45bd4d4-86f5-4a84-84e3-2658942d8e46",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_2",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271611.1953568
+  },
+  "3a9f6db3-f71c-4608-863e-c42e542a20e3": {
+    "id": "3a9f6db3-f71c-4608-863e-c42e542a20e3",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_3",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271616.8184268
+  },
+  "0557af90-d443-4dea-9d76-c7391fbb7d36": {
+    "id": "0557af90-d443-4dea-9d76-c7391fbb7d36",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_4",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271618.025832
+  },
+  "9372c6a4-60f1-43ee-921d-9b8f537d7ea4": {
+    "id": "9372c6a4-60f1-43ee-921d-9b8f537d7ea4",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_5",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271619.162442
+  },
+  "8f0c8560-54e5-49b0-b151-ed82f9e3278d": {
+    "id": "8f0c8560-54e5-49b0-b151-ed82f9e3278d",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_6",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271620.261036
+  },
+  "02f02980-318e-45cb-a426-c1b05abf8952": {
+    "id": "02f02980-318e-45cb-a426-c1b05abf8952",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_7",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271621.34586
+  },
+  "2a34dd12-4cbe-4eb2-8ccf-d17f01c98c3c": {
+    "id": "2a34dd12-4cbe-4eb2-8ccf-d17f01c98c3c",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_8",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271622.595697
+  },
+  "ad2e6846-30c1-4b4c-a09b-eef0b50cee83": {
+    "id": "ad2e6846-30c1-4b4c-a09b-eef0b50cee83",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_9",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271623.91241
+  },
+  "5e650e44-9e62-4617-b7d1-aca8c62a9dee": {
+    "id": "5e650e44-9e62-4617-b7d1-aca8c62a9dee",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_10",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271625.1621451
+  },
+  "368dc9f8-ac5a-4bc4-9dab-085458dd1908": {
+    "id": "368dc9f8-ac5a-4bc4-9dab-085458dd1908",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_11",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271626.827654
+  },
+  "ab9880f9-6366-437c-9ab6-c150a17f6975": {
+    "id": "ab9880f9-6366-437c-9ab6-c150a17f6975",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_12",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271628.062994
+  },
+  "bace82a5-1f07-4afe-8563-d9423d036a14": {
+    "id": "bace82a5-1f07-4afe-8563-d9423d036a14",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_13",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749271629.750884
+  },
+  "eb91a137-db6b-4723-b35a-a2734d3a68a3": {
+    "id": "eb91a137-db6b-4723-b35a-a2734d3a68a3",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272009.1238148
+  },
+  "8f5c79d6-de5d-4aaf-a214-15a04873749e": {
+    "id": "8f5c79d6-de5d-4aaf-a214-15a04873749e",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_1",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272040.760395
+  },
+  "cd0d1c9f-1d39-41b5-9a38-6871782fc71f": {
+    "id": "cd0d1c9f-1d39-41b5-9a38-6871782fc71f",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_2",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272043.701236
+  },
+  "26559ba5-5938-4928-9967-5bd5a5c70479": {
+    "id": "26559ba5-5938-4928-9967-5bd5a5c70479",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_3",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272045.5948842
+  },
+  "583b530a-5bba-46ba-8888-a537e4720ce1": {
+    "id": "583b530a-5bba-46ba-8888-a537e4720ce1",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_4",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272046.965056
+  },
+  "d3335115-f0a9-4e16-86d0-cdc3e67b87fd": {
+    "id": "d3335115-f0a9-4e16-86d0-cdc3e67b87fd",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_5",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272048.183584
+  },
+  "b9b0fa33-43b9-4ea2-ba98-f250beb6a2f1": {
+    "id": "b9b0fa33-43b9-4ea2-ba98-f250beb6a2f1",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_6",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272049.539978
+  },
+  "24196e3d-94c7-47e6-8058-94be38794c94": {
+    "id": "24196e3d-94c7-47e6-8058-94be38794c94",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_7",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272050.809098
+  },
+  "a7d68a53-7e50-4fd3-8eab-b6fd6d9e060c": {
+    "id": "a7d68a53-7e50-4fd3-8eab-b6fd6d9e060c",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_8",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272052.141749
+  },
+  "a6f2b48d-b88a-4a12-85bd-dd9ea9f5f3f4": {
+    "id": "a6f2b48d-b88a-4a12-85bd-dd9ea9f5f3f4",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_9",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272053.472739
+  },
+  "af335c88-076f-470b-bd1a-a9f7f7481b51": {
+    "id": "af335c88-076f-470b-bd1a-a9f7f7481b51",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_10",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272054.954033
+  },
+  "824b834e-3240-4d09-b4ee-27d54714652b": {
+    "id": "824b834e-3240-4d09-b4ee-27d54714652b",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_11",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272056.471762
+  },
+  "d117f8cf-b1c9-4b11-8fa1-42e9684b0c33": {
+    "id": "d117f8cf-b1c9-4b11-8fa1-42e9684b0c33",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_12",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272058.471256
+  },
+  "a6102163-8923-44bf-a2e8-d3070967437a": {
+    "id": "a6102163-8923-44bf-a2e8-d3070967437a",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_13",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272060.535823
+  },
+  "8d047824-a30c-4c92-90a2-62182620c5a1": {
+    "id": "8d047824-a30c-4c92-90a2-62182620c5a1",
+    "video_pair_id": "test_pair",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272125.938194
+  },
+  "08106e64-86c7-4f5f-b6e0-4bc1b95ee254": {
+    "id": "08106e64-86c7-4f5f-b6e0-4bc1b95ee254",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272305.4365098
+  },
+  "43fea0a5-c3ec-4fae-9e5e-f6009f6126f5": {
+    "id": "43fea0a5-c3ec-4fae-9e5e-f6009f6126f5",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_1",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272307.3209212
+  },
+  "d2501305-1730-492f-85bd-935f844bf849": {
+    "id": "d2501305-1730-492f-85bd-935f844bf849",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_2",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272311.45348
+  },
+  "cbea9122-3151-4942-9aeb-843da739d138": {
+    "id": "cbea9122-3151-4942-9aeb-843da739d138",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_3",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272314.4369311
+  },
+  "7378edae-a51b-4217-ad03-0bf3499ab756": {
+    "id": "7378edae-a51b-4217-ad03-0bf3499ab756",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272405.492088
+  },
+  "02ef6ebe-4c12-49dc-8837-d20542001352": {
+    "id": "02ef6ebe-4c12-49dc-8837-d20542001352",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272568.021164
+  },
+  "51964315-8e89-431c-bb74-bb11e2e03e70": {
+    "id": "51964315-8e89-431c-bb74-bb11e2e03e70",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_1",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272573.01872
+  },
+  "5a7edeb0-95cb-442f-8caa-aa59fafcc230": {
+    "id": "5a7edeb0-95cb-442f-8caa-aa59fafcc230",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_2",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272575.086772
+  },
+  "011ddaa9-f9f5-47d7-a7e5-0ad6d41d0b47": {
+    "id": "011ddaa9-f9f5-47d7-a7e5-0ad6d41d0b47",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_3",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272580.550536
+  },
+  "30c12526-b416-40cc-b95d-8e2ad1b50b48": {
+    "id": "30c12526-b416-40cc-b95d-8e2ad1b50b48",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_4",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272582.4576929
+  },
+  "f47a0445-25a3-4fc0-87d1-444b17e89a95": {
+    "id": "f47a0445-25a3-4fc0-87d1-444b17e89a95",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_5",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272589.492169
+  },
+  "42421ed5-78e3-4d24-beae-7f4650bc58dd": {
+    "id": "42421ed5-78e3-4d24-beae-7f4650bc58dd",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_6",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272596.552005
+  },
+  "17b11cc7-000a-43eb-bb44-62eddb797c14": {
+    "id": "17b11cc7-000a-43eb-bb44-62eddb797c14",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_7",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272606.939892
+  },
+  "32a9bc31-4ae6-4370-ad7e-39ebbfea06a4": {
+    "id": "32a9bc31-4ae6-4370-ad7e-39ebbfea06a4",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_8",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272613.724778
+  },
+  "442730e8-664a-48cc-81ba-869debb1990c": {
+    "id": "442730e8-664a-48cc-81ba-869debb1990c",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_9",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272624.509714
+  },
+  "c9deca59-3210-4488-b1b6-e32d958418ea": {
+    "id": "c9deca59-3210-4488-b1b6-e32d958418ea",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_10",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272631.255904
+  },
+  "2fb6d776-e9b6-46c4-9121-df64173c4056": {
+    "id": "2fb6d776-e9b6-46c4-9121-df64173c4056",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_11",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272634.126314
+  },
+  "1cd0db88-dcd9-4bc2-af40-368b29e7132e": {
+    "id": "1cd0db88-dcd9-4bc2-af40-368b29e7132e",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_12",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272641.439768
+  },
+  "5ee5c9ff-7035-45c6-ae09-3001206f7e9f": {
+    "id": "5ee5c9ff-7035-45c6-ae09-3001206f7e9f",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_13",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749272647.988159
+  },
+  "09c06122-e12d-4260-b653-d956e97713ad": {
+    "id": "09c06122-e12d-4260-b653-d956e97713ad",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280023.100714
+  },
+  "cdf9dad4-352f-4ae1-b821-d63b548d6b51": {
+    "id": "cdf9dad4-352f-4ae1-b821-d63b548d6b51",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_1",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280028.463745
+  },
+  "e343f1b3-33fc-4b8f-8b7c-c890d677f166": {
+    "id": "e343f1b3-33fc-4b8f-8b7c-c890d677f166",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_2",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280029.634196
+  },
+  "c7c32ea4-06e1-44bf-b685-930e58abd1f2": {
+    "id": "c7c32ea4-06e1-44bf-b685-930e58abd1f2",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_3",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280032.189804
+  },
+  "fec13094-97b9-4943-8d12-685c751a2105": {
+    "id": "fec13094-97b9-4943-8d12-685c751a2105",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_4",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280033.318738
+  },
+  "7eb26188-e1e8-4b0b-9fbf-c67082fea6cc": {
+    "id": "7eb26188-e1e8-4b0b-9fbf-c67082fea6cc",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_5",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280036.102304
+  },
+  "a980a80d-eef8-4cb9-8c67-d4e959dad532": {
+    "id": "a980a80d-eef8-4cb9-8c67-d4e959dad532",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_6",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280041.9191098
+  },
+  "c13d8f30-bd70-4d73-b5d0-282a171b6866": {
+    "id": "c13d8f30-bd70-4d73-b5d0-282a171b6866",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_7",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280047.840132
+  },
+  "c9d6f657-b107-4c31-bb0b-a4e100b5a366": {
+    "id": "c9d6f657-b107-4c31-bb0b-a4e100b5a366",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_8",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280053.553597
+  },
+  "f28bb21e-3796-4222-9617-a8803c69c283": {
+    "id": "f28bb21e-3796-4222-9617-a8803c69c283",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_9",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280057.535997
+  },
+  "7f822a0c-d8fc-44cc-b90a-a5bced700c4a": {
+    "id": "7f822a0c-d8fc-44cc-b90a-a5bced700c4a",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_10",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280068.6285272
+  },
+  "66da1a9d-8921-461e-b152-a5a0b23d3883": {
+    "id": "66da1a9d-8921-461e-b152-a5a0b23d3883",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_11",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280072.6693811
+  },
+  "de5e9922-219b-4fa6-9a6e-48ba5b24c50c": {
+    "id": "de5e9922-219b-4fa6-9a6e-48ba5b24c50c",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_12",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280078.584668
+  },
+  "a106acf5-fa5d-424f-93d2-140216326e30": {
+    "id": "a106acf5-fa5d-424f-93d2-140216326e30",
+    "video_pair_id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219_13",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749280087.5806231
+  },
+  "1dc06065-511e-476f-86a0-5dd0e4c54691": {
+    "id": "1dc06065-511e-476f-86a0-5dd0e4c54691",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_0",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282260.1184142
+  },
+  "63af9e89-8c45-4655-a313-9e7889be6320": {
+    "id": "63af9e89-8c45-4655-a313-9e7889be6320",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_1",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282273.4744089
+  },
+  "03a57c03-b26a-48e2-91d6-7f0482a8468e": {
+    "id": "03a57c03-b26a-48e2-91d6-7f0482a8468e",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_2",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282278.614812
+  },
+  "723aaaca-55c8-4c34-889f-9b8b80dcfb11": {
+    "id": "723aaaca-55c8-4c34-889f-9b8b80dcfb11",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_3",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282288.140842
+  },
+  "ebe828cc-73db-42f4-8756-4f52fde71efe": {
+    "id": "ebe828cc-73db-42f4-8756-4f52fde71efe",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_4",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282295.256814
+  },
+  "3f11e920-96f9-4e8e-9eaf-c755fe7fe33f": {
+    "id": "3f11e920-96f9-4e8e-9eaf-c755fe7fe33f",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_5",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282297.755053
+  },
+  "fb68a5bc-50a0-4399-9d73-0b87444f9fc5": {
+    "id": "fb68a5bc-50a0-4399-9d73-0b87444f9fc5",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_6",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282305.2738612
+  },
+  "996b626e-4e63-483e-940f-29a344118f29": {
+    "id": "996b626e-4e63-483e-940f-29a344118f29",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_7",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282320.184085
+  },
+  "d04615e2-dd62-44c3-be30-3d1332be8220": {
+    "id": "d04615e2-dd62-44c3-be30-3d1332be8220",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_8",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282325.4197178
+  },
+  "15b91bfe-fb33-46cd-a097-420ad3517b68": {
+    "id": "15b91bfe-fb33-46cd-a097-420ad3517b68",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_9",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282342.98057
+  },
+  "3250f37d-311e-4bce-87d7-333fe8100566": {
+    "id": "3250f37d-311e-4bce-87d7-333fe8100566",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_10",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282347.251679
+  },
+  "d498126b-d334-4b88-ae4d-c27158af007c": {
+    "id": "d498126b-d334-4b88-ae4d-c27158af007c",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_11",
+    "choice": "A",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282350.9130828
+  },
+  "b5c50ea5-42c9-41b7-923a-2d12e644fa03": {
+    "id": "b5c50ea5-42c9-41b7-923a-2d12e644fa03",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_12",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282356.5193632
+  },
+  "5fba809c-bcfe-4c5e-a783-835f10858de1": {
+    "id": "5fba809c-bcfe-4c5e-a783-835f10858de1",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_13",
+    "choice": "B",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282367.504792
+  },
+  "3c8aae41-10cf-4974-9310-195832529e26": {
+    "id": "3c8aae41-10cf-4974-9310-195832529e26",
+    "video_pair_id": "df4f7110-ae7b-48f5-b54b-a995bb54972f_14",
+    "choice": "tie",
+    "comments": null,
+    "is_blind": true,
+    "created_at": 1749282396.626571
+  }
+}

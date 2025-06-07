@@ -1,0 +1,206 @@
+{
+  "0e1e93ec-bff4-4e32-92af-a6ff277b1219": {
+    "id": "0e1e93ec-bff4-4e32-92af-a6ff277b1219",
+    "name": "test",
+    "description": "",
+    "folder_a": "0606",
+    "folder_b": "shanghai",
+    "is_blind": true,
+    "status": "created",
+    "video_pairs_count": 14,
+    "completed_pairs": 0,
+    "created_time": 1749271023.315497,
+    "updated_time": 1749271023.315497,
+    "video_pairs": [
+      {
+        "video_a": "6da851ad_in_the_middle_of_the_room_a_huge_scary_black_monster,_shows_how_scary_he_is,_threatens_with_claws._S_seed1882461432_share.mp4",
+        "video_b": "7dea540d_in_the_middle_of_the_room_a_huge_scary_black_monster,_shows_how_scary_he_is,_threatens_with_claws._S_seed2057266523_share.mp4",
+        "similarity": 0.9,
+        "completed": false
+      },
+      {
+        "video_a": "b9e6257d_light_changing_from_night_to_day,_from_black_and_white_to_color,_camera_slow_motion_seed1917523611_share.mp4",
+        "video_b": "b1661bbd_light_changing_from_night_to_day,_from_black_and_white_to_color,_camera_slow_motion_seed533113361_share.mp4",
+        "similarity": 0.8938053097345133,
+        "completed": false
+      },
+      {
+        "video_a": "26ae5672_blockhead_walks_down_the_road,_cinematic_motion_-_he_s_happy_and_on_his_way_to_his_first_job_intervi_seed3318770551_share.mp4",
+        "video_b": "c028b771_blockhead_walks_down_the_road,_cinematic_motion_-_he_s_happy_and_on_his_way_to_his_first_job_intervi_seed3918399122_share.mp4",
+        "similarity": 0.8923076923076922,
+        "completed": false
+      },
+      {
+        "video_a": "86330edc_Hollywood_cinematic_style,_anamorphic_lens_flares,_moody_lighting,_shallow_depth_of_field,_ultra-det_seed3033159412_share.mp4",
+        "video_b": "a623f117_Hollywood_cinematic_style,_anamorphic_lens_flares,_moody_lighting,_shallow_depth_of_field,_ultra-det_seed2305409144_share.mp4",
+        "similarity": 0.8923076923076922,
+        "completed": false
+      },
+      {
+        "video_a": "ca0440c9_For_the_first_5_seconds,_she_stands_still_with_a_confident_expression,_holding_her_phone_up_for_a_se_seed1825072127_share.mp4",
+        "video_b": "7e0cee68_For_the_first_5_seconds,_she_stands_still_with_a_confident_expression,_holding_her_phone_up_for_a_se_seed4198987575_share.mp4",
+        "similarity": 0.8769230769230769,
+        "completed": false
+      },
+      {
+        "video_a": "ebb6d621_The_subject_flexes,_and_their_physique_quickly_grows_in_size,_with_muscles_bulging_and_their_body_ap_seed3376543306_share.mp4",
+        "video_b": "d9c860e7_The_subject_flexes,_and_their_physique_quickly_grows_in_size,_with_muscles_bulging_and_their_body_ap_seed1275097203_share.mp4",
+        "similarity": 0.8769230769230769,
+        "completed": false
+      },
+      {
+        "video_a": "c3ab75cd_sudden_transformation,_the_cute_bear_turns_evil,_eyes_glowing_red,_dark_fog_emerges,_the_forest_beco_seed2672412234_share.mp4",
+        "video_b": "b1e69c8a_sudden_transformation,_the_cute_bear_turns_evil,_eyes_glowing_red,_dark_fog_emerges,_the_forest_beco_seed3556879784_share.mp4",
+        "similarity": 0.8692307692307693,
+        "completed": false
+      },
+      {
+        "video_a": "ee6d60e1_A_fluffy_white_rabbit_is_riding_a_tiny_red_bicycle_on_a_smooth,_open_road,_surrounded_by_lush_greene_seed2093187975_share.mp4",
+        "video_b": "a89cfe45_A_fluffy_white_rabbit_is_riding_a_tiny_red_bicycle_on_a_smooth,_open_road,_surrounded_by_lush_greene_seed142801119_share.mp4",
+        "similarity": 0.8692307692307693,
+        "completed": false
+      },
+      {
+        "video_a": "e37fd6b1_light_changing_from_day_to_night_hyperlapse,__from_color_to_black_and_white,_camera_slow_motion_seed2349895335_share.mp4",
+        "video_b": "7f3a16a8_light_changing_from_day_to_night_hyperlapse,__from_color_to_black_and_white,_camera_slow_motion_seed4160673612_share.mp4",
+        "similarity": 0.8629032258064516,
+        "completed": false
+      },
+      {
+        "video_a": "40398dd3_Beautiful_woman_performing_a_slow_and_hot_dance,_seductive._seed2685448152_share.mp4",
+        "video_b": "21623361_Beautiful_woman_performing_a_slow_and_hot_dance,_seductive._seed2179653659_share.mp4",
+        "similarity": 0.8202247191011236,
+        "completed": false
+      },
+      {
+        "video_a": "4ce381b1_Camera_zoom_out_show_background_keep_background_still_seed4169620707_share.mp4",
+        "video_b": "74da5a1b_Camera_zoom_out_show_background_keep_background_still_seed2285948502_share.mp4",
+        "similarity": 0.8192771084337349,
+        "completed": false
+      },
+      {
+        "video_a": "a7413133_a_person_playing_with_fire,_camera_slow_motion_seed1598665458_share.mp4",
+        "video_b": "df98c601_a_person_playing_with_fire,_camera_slow_motion_seed2760700151_share.mp4",
+        "similarity": 0.7763157894736842,
+        "completed": false
+      },
+      {
+        "video_a": "5d1f211f_turn_his_hair_into_rainboy_flowing_hair_seed753181074_share.mp4",
+        "video_b": "9334420c_turn_his_hair_into_rainboy_flowing_hair_seed2455032049_share.mp4",
+        "similarity": 0.7681159420289855,
+        "completed": false
+      },
+      {
+        "video_a": "c838bc90_embrace,_camera_pull_out_slow_motion_seed1796326235_share.mp4",
+        "video_b": "11f73522_embrace,_camera_pull_out_slow_motion_seed583982440_share.mp4",
+        "similarity": 0.7424242424242424,
+        "completed": false
+      }
+    ]
+  },
+  "df4f7110-ae7b-48f5-b54b-a995bb54972f": {
+    "id": "df4f7110-ae7b-48f5-b54b-a995bb54972f",
+    "name": "Pika 2.2 vs 0606dmd",
+    "description": null,
+    "folder_a": "0606",
+    "folder_b": "pika 2.2",
+    "is_blind": true,
+    "status": "created",
+    "video_pairs_count": 15,
+    "completed_pairs": 0,
+    "created_time": 1749282245.723862,
+    "updated_time": 1749282245.723862,
+    "video_pairs": [
+      {
+        "video_a": "86330edc_Hollywood_cinematic_style,_anamorphic_lens_flares,_moody_lighting,_shallow_depth_of_field,_ultra-det_seed3033159412_share.mp4",
+        "video_b": "19323fbb_Hollywood_cinematic_style,_anamorphic_lens_flares,_moody_lighting,_shallow_depth_of_field,_ultra-det_seed2100749902_share.mp4",
+        "similarity": 0.8846153846153846,
+        "completed": false
+      },
+      {
+        "video_a": "ca0440c9_For_the_first_5_seconds,_she_stands_still_with_a_confident_expression,_holding_her_phone_up_for_a_se_seed1825072127_share.mp4",
+        "video_b": "9bf4962d_For_the_first_5_seconds,_she_stands_still_with_a_confident_expression,_holding_her_phone_up_for_a_se_seed2248812118_share.mp4",
+        "similarity": 0.8846153846153846,
+        "completed": false
+      },
+      {
+        "video_a": "e37fd6b1_light_changing_from_day_to_night_hyperlapse,__from_color_to_black_and_white,_camera_slow_motion_seed2349895335_share.mp4",
+        "video_b": "9d57f6f7_light_changing_from_day_to_night_hyperlapse,__from_color_to_black_and_white,_camera_slow_motion_seed3063414036_share.mp4",
+        "similarity": 0.8790322580645161,
+        "completed": false
+      },
+      {
+        "video_a": "c3ab75cd_sudden_transformation,_the_cute_bear_turns_evil,_eyes_glowing_red,_dark_fog_emerges,_the_forest_beco_seed2672412234_share.mp4",
+        "video_b": "7f8717d6_sudden_transformation,_the_cute_bear_turns_evil,_eyes_glowing_red,_dark_fog_emerges,_the_forest_beco_seed3442000665_share.mp4",
+        "similarity": 0.8769230769230769,
+        "completed": false
+      },
+      {
+        "video_a": "ebb6d621_The_subject_flexes,_and_their_physique_quickly_grows_in_size,_with_muscles_bulging_and_their_body_ap_seed3376543306_share.mp4",
+        "video_b": "5db715cc_The_subject_flexes,_and_their_physique_quickly_grows_in_size,_with_muscles_bulging_and_their_body_ap_seed123415889_share.mp4",
+        "similarity": 0.8769230769230769,
+        "completed": false
+      },
+      {
+        "video_a": "ee6d60e1_A_fluffy_white_rabbit_is_riding_a_tiny_red_bicycle_on_a_smooth,_open_road,_surrounded_by_lush_greene_seed2093187975_share.mp4",
+        "video_b": "13d4da84_A_fluffy_white_rabbit_is_riding_a_tiny_red_bicycle_on_a_smooth,_open_road,_surrounded_by_lush_greene_seed356767507_share.mp4",
+        "similarity": 0.8769230769230769,
+        "completed": false
+      },
+      {
+        "video_a": "6da851ad_in_the_middle_of_the_room_a_huge_scary_black_monster,_shows_how_scary_he_is,_threatens_with_claws._S_seed1882461432_share.mp4",
+        "video_b": "8010e7c0_in_the_middle_of_the_room_a_huge_scary_black_monster,_shows_how_scary_he_is,_threatens_with_claws._S_seed597871983_share.mp4",
+        "similarity": 0.8692307692307693,
+        "completed": false
+      },
+      {
+        "video_a": "b9e6257d_light_changing_from_night_to_day,_from_black_and_white_to_color,_camera_slow_motion_seed1917523611_share.mp4",
+        "video_b": "7a243772_light_changing_from_night_to_day,_from_black_and_white_to_color,_camera_slow_motion_seed2569080236_share.mp4",
+        "similarity": 0.8672566371681416,
+        "completed": false
+      },
+      {
+        "video_a": "26ae5672_blockhead_walks_down_the_road,_cinematic_motion_-_he_s_happy_and_on_his_way_to_his_first_job_intervi_seed3318770551_share.mp4",
+        "video_b": "18532981_blockhead_walks_down_the_road,_cinematic_motion_-_he_s_happy_and_on_his_way_to_his_first_job_intervi_seed1220424182_share.mp4",
+        "similarity": 0.8615384615384616,
+        "completed": false
+      },
+      {
+        "video_a": "4ce381b1_Camera_zoom_out_show_background_keep_background_still_seed4169620707_share.mp4",
+        "video_b": "7f6f619a_Camera_zoom_out_show_background_keep_background_still_seed2962639488_share.mp4",
+        "similarity": 0.8192771084337349,
+        "completed": false
+      },
+      {
+        "video_a": "c67b95c1_ansicht_enfernt_sich_nach_oben_bis_hin_in_die_galaxie_seed4123268260_share.mp4",
+        "video_b": "5c840a36_ansicht_enfernt_sich_nach_oben_bis_hin_in_die_galaxie_seed315215982_share (1).mp4",
+        "similarity": 0.8192771084337349,
+        "completed": false
+      },
+      {
+        "video_a": "40398dd3_Beautiful_woman_performing_a_slow_and_hot_dance,_seductive._seed2685448152_share.mp4",
+        "video_b": "2ec751e4_Beautiful_woman_performing_a_slow_and_hot_dance,_seductive._seed3592217267_share.mp4",
+        "similarity": 0.8089887640449438,
+        "completed": false
+      },
+      {
+        "video_a": "5d1f211f_turn_his_hair_into_rainboy_flowing_hair_seed753181074_share.mp4",
+        "video_b": "8b2574e2_turn_his_hair_into_rainboy_flowing_hair_seed959718997_share.mp4",
+        "similarity": 0.7941176470588236,
+        "completed": false
+      },
+      {
+        "video_a": "a7413133_a_person_playing_with_fire,_camera_slow_motion_seed1598665458_share.mp4",
+        "video_b": "0ab04122_a_person_playing_with_fire,_camera_slow_motion_seed2376148755_share.mp4",
+        "similarity": 0.7894736842105263,
+        "completed": false
+      },
+      {
+        "video_a": "c838bc90_embrace,_camera_pull_out_slow_motion_seed1796326235_share.mp4",
+        "video_b": "690bf058_embrace,_camera_pull_out_slow_motion_seed2128269750_share.mp4",
+        "similarity": 0.7575757575757576,
+        "completed": false
+      }
+    ]
+  }
+}
