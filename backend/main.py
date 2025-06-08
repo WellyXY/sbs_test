@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 import time
 import json
 import shutil
+import random
 from urllib.parse import quote, unquote
 from typing import List
 
@@ -557,24 +558,46 @@ async def get_task(task_id: str):
                     encoded_file_a = quote(file_a)
                     encoded_file_b = quote(file_b)
                     
+                    # 隨機決定左右順序（盲測的關鍵特性）
+                    swap_sides = random.choice([True, False])
+                    
+                    if swap_sides:
+                        # 交換左右：B資料夾在左，A資料夾在右
+                        left_path = f"uploads/{task['folder_b']}/{encoded_file_b}"
+                        right_path = f"uploads/{task['folder_a']}/{encoded_file_a}"
+                        left_name = file_b
+                        right_name = file_a
+                        left_folder = task['folder_b']
+                        right_folder = task['folder_a']
+                    else:
+                        # 正常順序：A資料夾在左，B資料夾在右
+                        left_path = f"uploads/{task['folder_a']}/{encoded_file_a}"
+                        right_path = f"uploads/{task['folder_b']}/{encoded_file_b}"
+                        left_name = file_a
+                        right_name = file_b
+                        left_folder = task['folder_a']
+                        right_folder = task['folder_b']
+                    
                     video_pairs.append({
                         "id": f"{task_id}_pair_{i+1}",
                         "task_id": task_id,
-                        "video_a_path": f"uploads/{task['folder_a']}/{encoded_file_a}",
-                        "video_b_path": f"uploads/{task['folder_b']}/{encoded_file_b}",
-                        "video_a_name": file_a,
-                        "video_b_name": file_b,
-                        "is_evaluated": False
+                        "video_a_path": left_path,  # 左側視頻（隨機A或B）
+                        "video_b_path": right_path, # 右側視頻（隨機B或A）
+                        "video_a_name": left_name,
+                        "video_b_name": right_name,
+                        "is_evaluated": False,
+                        # 記錄真實的資料夾映射，用於統計分析
+                        "left_folder": left_folder,
+                        "right_folder": right_folder,
+                        "is_swapped": swap_sides  # 記錄是否交換了順序
                     })
                 
                 print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (基礎名稱配對)")
                 for pair in video_pairs:
-                    name_a = os.path.splitext(pair['video_a_name'])[0]
-                    name_b = os.path.splitext(pair['video_b_name'])[0]
-                    print(f"   對 {pair['id']}:")
-                    print(f"     視頻A: {pair['video_a_name']} -> {pair['video_a_path']}")
-                    print(f"     視頻B: {pair['video_b_name']} -> {pair['video_b_path']}")
-                    print(f"     基礎名稱: {name_a}")
+                    swap_status = "已交換" if pair['is_swapped'] else "正常順序"
+                    print(f"   對 {pair['id']} ({swap_status}):")
+                    print(f"     左側視頻: {pair['video_a_name']} (來自{pair['left_folder']}) -> {pair['video_a_path']}")
+                    print(f"     右側視頻: {pair['video_b_name']} (來自{pair['right_folder']}) -> {pair['video_b_path']}")
                 
                 # 報告未配對的文件
                 unmatched_a = set(files_a_map.keys()) - common_names
@@ -597,21 +620,46 @@ async def get_task(task_id: str):
                     encoded_file_a = quote(file_a)
                     encoded_file_b = quote(file_b)
                     
+                    # 隨機決定左右順序（盲測的關鍵特性）
+                    swap_sides = random.choice([True, False])
+                    
+                    if swap_sides:
+                        # 交換左右：B資料夾在左，A資料夾在右
+                        left_path = f"uploads/{task['folder_b']}/{encoded_file_b}"
+                        right_path = f"uploads/{task['folder_a']}/{encoded_file_a}"
+                        left_name = file_b
+                        right_name = file_a
+                        left_folder = task['folder_b']
+                        right_folder = task['folder_a']
+                    else:
+                        # 正常順序：A資料夾在左，B資料夾在右
+                        left_path = f"uploads/{task['folder_a']}/{encoded_file_a}"
+                        right_path = f"uploads/{task['folder_b']}/{encoded_file_b}"
+                        left_name = file_a
+                        right_name = file_b
+                        left_folder = task['folder_a']
+                        right_folder = task['folder_b']
+                    
                     video_pairs.append({
                         "id": f"{task_id}_pair_{i+1}",
                         "task_id": task_id,
-                        "video_a_path": f"uploads/{task['folder_a']}/{encoded_file_a}",
-                        "video_b_path": f"uploads/{task['folder_b']}/{encoded_file_b}",
-                        "video_a_name": file_a,
-                        "video_b_name": file_b,
-                        "is_evaluated": False
+                        "video_a_path": left_path,  # 左側視頻（隨機A或B）
+                        "video_b_path": right_path, # 右側視頻（隨機B或A）
+                        "video_a_name": left_name,
+                        "video_b_name": right_name,
+                        "is_evaluated": False,
+                        # 記錄真實的資料夾映射，用於統計分析
+                        "left_folder": left_folder,
+                        "right_folder": right_folder,
+                        "is_swapped": swap_sides  # 記錄是否交換了順序
                     })
                 
                 print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (順序配對)")
                 for pair in video_pairs:
-                    print(f"   對 {pair['id']}:")
-                    print(f"     視頻A: {pair['video_a_name']} -> {pair['video_a_path']}")
-                    print(f"     視頻B: {pair['video_b_name']} -> {pair['video_b_path']}")
+                    swap_status = "已交換" if pair['is_swapped'] else "正常順序"
+                    print(f"   對 {pair['id']} ({swap_status}):")
+                    print(f"     左側視頻: {pair['video_a_name']} (來自{pair['left_folder']}) -> {pair['video_a_path']}")
+                    print(f"     右側視頻: {pair['video_b_name']} (來自{pair['right_folder']}) -> {pair['video_b_path']}")
                 
                 # 報告未配對的文件
                 if len(files_a) > pair_count:
@@ -737,6 +785,32 @@ async def get_evaluation_by_pair(video_pair_id: str):
     
     return {"success": True, "data": evaluation, "message": "評估詳情"}
 
+# 輔助函數：同步獲取任務視頻對數據
+def get_task_video_pairs_sync(task_id: str):
+    """同步獲取任務的視頻對數據，用於統計分析"""
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        return []
+    
+    # 如果任務已經有視頻對數據，直接返回
+    if "video_pairs" in task:
+        return task["video_pairs"]
+    
+    # 否則動態生成（但這種情況下不會有隨機化信息）
+    try:
+        # 調用現有的視頻對生成邏輯（會應用隨機化）
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        # 這裡我們需要直接從get_task端點獲取，但這有循環依賴問題
+        # 暫時返回空列表，讓統計功能在沒有隨機化信息時回退到簡單統計
+        return []
+        
+    except Exception as e:
+        print(f"❌ 獲取任務視頻對錯誤: {e}")
+        return []
+
 # Statistics API端點
 @app.get("/api/statistics/{task_id}")
 async def get_task_statistics(task_id: str):
@@ -746,18 +820,67 @@ async def get_task_statistics(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
     
-    # 獲取該任務的評估數據
+    # 獲取該任務的評估數據和視頻對映射
     task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
     
-    # 計算統計數據
+    # 獲取任務的視頻對數據以了解隨機化情況
+    task_video_pairs = []
+    try:
+        task_video_pairs = get_task_video_pairs_sync(task_id)
+    except:
+        task_video_pairs = []
+    
+    # 建立視頻對ID到隨機化信息的映射
+    pair_mapping = {}
+    has_randomization_info = False
+    
+    for pair in task_video_pairs:
+        if "is_swapped" in pair and "left_folder" in pair:
+            has_randomization_info = True
+            pair_mapping[pair["id"]] = {
+                "is_swapped": pair.get("is_swapped", False),
+                "left_folder": pair.get("left_folder", task["folder_a"]),
+                "right_folder": pair.get("right_folder", task["folder_b"])
+            }
+    
+    # 計算偏好統計
     total_evaluations = len(task_evaluations)
-    preference_a = len([e for e in task_evaluations if e["choice"] == "A"])
-    preference_b = len([e for e in task_evaluations if e["choice"] == "B"])
-    ties = len([e for e in task_evaluations if e["choice"] == "tie"])
+    preference_folder_a = 0  # 實際偏好資料夾A的數量
+    preference_folder_b = 0  # 實際偏好資料夾B的數量
+    ties = 0
+    
+    for evaluation in task_evaluations:
+        choice = evaluation["choice"]
+        pair_id = evaluation["video_pair_id"]
+        
+        if choice == "tie":
+            ties += 1
+        elif choice in ["A", "B"]:
+            if has_randomization_info and pair_id in pair_mapping:
+                # 使用隨機化信息計算真實的資料夾偏好
+                pair_info = pair_mapping[pair_id]
+                
+                # 確定實際選擇的資料夾
+                if choice == "A":  # 用戶選擇了左側視頻
+                    actual_folder = pair_info["left_folder"]
+                else:  # choice == "B", 用戶選擇了右側視頻
+                    actual_folder = pair_info["right_folder"]
+                
+                # 統計到對應的資料夾
+                if actual_folder == task["folder_a"]:
+                    preference_folder_a += 1
+                elif actual_folder == task["folder_b"]:
+                    preference_folder_b += 1
+            else:
+                # 回退到傳統統計（假設A固定在左，B固定在右）
+                if choice == "A":
+                    preference_folder_a += 1
+                elif choice == "B":
+                    preference_folder_b += 1
     
     # 計算百分比
-    preference_a_percent = (preference_a / total_evaluations * 100) if total_evaluations > 0 else 0
-    preference_b_percent = (preference_b / total_evaluations * 100) if total_evaluations > 0 else 0
+    preference_a_percent = (preference_folder_a / total_evaluations * 100) if total_evaluations > 0 else 0
+    preference_b_percent = (preference_folder_b / total_evaluations * 100) if total_evaluations > 0 else 0
     ties_percent = (ties / total_evaluations * 100) if total_evaluations > 0 else 0
     
     # 計算完成率（假設每個視頻對需要1次評估）
@@ -770,8 +893,8 @@ async def get_task_statistics(task_id: str):
         "video_pairs_count": task["video_pairs_count"],
         "completion_rate": round(completion_rate, 1),
         "preferences": {
-            "a_better": preference_a,
-            "b_better": preference_b,
+            "a_better": preference_folder_a,
+            "b_better": preference_folder_b,
             "tie": ties,
             "a_better_percent": round(preference_a_percent, 1),
             "b_better_percent": round(preference_b_percent, 1),
