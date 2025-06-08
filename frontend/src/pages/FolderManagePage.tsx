@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { systemApi } from '../api/taskApi';
 import axios from 'axios';
 // Debug: 檢查API連接
 console.log('🔧 DEBUG: FolderManagePage 載入，準備測試API連接...');
 
-// 使用與taskApi相同的配置
+// 直接使用Railway API配置
 const API_BASE_URL = 'https://sbstest-production.up.railway.app';
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -15,9 +14,9 @@ const api = axios.create({
 });
 
 // 測試API連接
-systemApi.getHealth()
-  .then(result => {
-    console.log('✅ DEBUG: API連接成功！', result);
+api.get('/api/health')
+  .then(response => {
+    console.log('✅ DEBUG: API連接成功！', response.data);
   })
   .catch(error => {
     console.error('❌ DEBUG: API連接失敗！', error);

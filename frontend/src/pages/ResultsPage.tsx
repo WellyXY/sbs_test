@@ -30,18 +30,23 @@ const ResultsPage: React.FC = () => {
     
     try {
       setLoading(true)
-      const response = await fetch(`/api/statistics/${taskId}`)
+      console.log('🔧 DEBUG: 載入統計數據，任務ID:', taskId)
+      
+      const response = await fetch(`https://sbstest-production.up.railway.app/api/statistics/${taskId}`)
+      console.log('🔧 DEBUG: 統計API響應狀態:', response.status)
       
       if (response.ok) {
         const data = await response.json()
+        console.log('🔧 DEBUG: 統計數據:', data)
         setStatistics(data)
       } else {
-        alert('Failed to load statistics')
+        console.error('❌ DEBUG: 載入統計失敗:', response.status)
+        alert('載入統計數據失敗')
         navigate('/tasks')
       }
     } catch (error) {
-      console.error('Statistics loading error:', error)
-      alert('Network error')
+      console.error('❌ DEBUG: 統計載入錯誤:', error)
+      alert('網絡錯誤')
       navigate('/tasks')
     } finally {
       setLoading(false)
@@ -55,7 +60,9 @@ const ResultsPage: React.FC = () => {
     if (!confirmReset) return
     
     try {
-      const response = await fetch(`/api/evaluations/reset/${taskId}`, {
+      console.log('🔧 DEBUG: 重置結果，任務ID:', taskId)
+      
+      const response = await fetch(`https://sbstest-production.up.railway.app/api/evaluations/reset/${taskId}`, {
         method: 'POST'
       })
       
