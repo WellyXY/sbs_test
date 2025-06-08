@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 import uvicorn
 import os
 from contextlib import asynccontextmanager
+import time
 
 # 修復導入問題，先註釋掉可能有問題的導入
 # from database.database import engine, SessionLocal, Base
@@ -88,10 +89,13 @@ async def health_check():
 async def api_health_check():
     return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
 
+# 簡單的內存存儲（生產環境應該使用數據庫）
+folders_storage = []
+
 # 簡單的folders API端點用於測試
 @app.get("/api/folders/")
 async def get_folders():
-    return {"success": True, "data": [], "message": "資料夾列表"}
+    return {"success": True, "data": folders_storage, "message": "資料夾列表"}
 
 @app.post("/api/folders/create")
 async def create_folder(data: dict):
@@ -99,14 +103,23 @@ async def create_folder(data: dict):
     if not folder_name:
         return {"success": False, "error": "資料夾名稱不能為空"}
     
-    # 這裡只是模擬創建，實際上不做任何操作
+    # 檢查是否已存在
+    if any(folder["name"] == folder_name for folder in folders_storage):
+        return {"success": False, "error": f"資料夾 '{folder_name}' 已存在"}
+    
+    # 創建資料夾對象並保存到內存
+    new_folder = {
+        "name": folder_name,
+        "path": f"/uploads/{folder_name}",
+        "video_count": 0,
+        "total_size": 0,
+        "created_time": int(time.time()) if 'time' in globals() else 1686123456
+    }
+    folders_storage.append(new_folder)
+    
     return {
         "success": True, 
-        "data": {
-            "name": folder_name,
-            "path": f"/uploads/{folder_name}",
-            "created": True
-        },
+        "data": new_folder,
         "message": f"資料夾 '{folder_name}' 創建成功"
     }
 
