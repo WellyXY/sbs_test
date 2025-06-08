@@ -1,6 +1,3 @@
-[phases.setup]
-nixPkgs = ["python39", "pip"]
-
 [phases.install]
 cmd = "pip install -r requirements.txt"
 
