@@ -736,76 +736,51 @@ async def get_all_statistics():
     
     return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
 
-# 視頻文件檢查端點（調試用）
-@app.get("/api/debug/video-check/{task_id}")
-async def debug_video_check(task_id: str):
-    """檢查任務的視頻文件是否存在"""
-    task = next((t for t in tasks_storage if t["id"] == task_id), None)
-    if not task:
-        return {"success": False, "error": "任務不存在"}
-    
-    # 檢查資料夾和文件
-    folder_a_path = f"uploads/{task['folder_a']}"
-    folder_b_path = f"uploads/{task['folder_b']}"
-    
-    result = {
-        "task_id": task_id,
-        "folder_a": task['folder_a'],
-        "folder_b": task['folder_b'],
-        "current_working_directory": os.getcwd(),
-        "folder_a_path": folder_a_path,
-        "folder_b_path": folder_b_path,
-        "folder_a_exists": os.path.exists(folder_a_path),
-        "folder_b_exists": os.path.exists(folder_b_path),
-        "folder_a_files": [],
-        "folder_b_files": [],
-        "video_pairs_check": []
-    }
-    
-    # 檢查資料夾A的文件
-    if os.path.exists(folder_a_path):
-        try:
-            all_files_a = os.listdir(folder_a_path)
-            result["folder_a_files"] = all_files_a
-        except Exception as e:
-            result["folder_a_error"] = str(e)
-    
-    # 檢查資料夾B的文件  
-    if os.path.exists(folder_b_path):
-        try:
-            all_files_b = os.listdir(folder_b_path)
-            result["folder_b_files"] = all_files_b
-        except Exception as e:
-            result["folder_b_error"] = str(e)
-    
-    # 檢查視頻對
+# 添加文件檢查端點
+@app.get("/api/debug/file-exists")
+async def check_file_exists(path: str):
+    """檢查文件是否存在的調試端點"""
     try:
-        task_data = await get_task(task_id)
-        if task_data["success"] and task_data["data"].get("video_pairs"):
-            for pair in task_data["data"]["video_pairs"]:
-                video_a_full_path = pair["video_a_path"].replace("uploads/", "uploads/")
-                video_b_full_path = pair["video_b_path"].replace("uploads/", "uploads/")
-                
-                pair_check = {
-                    "pair_id": pair["id"],
-                    "video_a_name": pair["video_a_name"],
-                    "video_b_name": pair["video_b_name"],
-                    "video_a_path": pair["video_a_path"],
-                    "video_b_path": pair["video_b_path"],
-                    "video_a_exists": os.path.exists(video_a_full_path),
-                    "video_b_exists": os.path.exists(video_b_full_path)
-                }
-                
-                if os.path.exists(video_a_full_path):
-                    pair_check["video_a_size"] = os.path.getsize(video_a_full_path)
-                if os.path.exists(video_b_full_path):
-                    pair_check["video_b_size"] = os.path.getsize(video_b_full_path)
-                    
-                result["video_pairs_check"].append(pair_check)
+        # 安全檢查：只允許檢查uploads目錄下的文件
+        if not path.startswith("uploads/"):
+            return {"success": False, "error": "只能檢查uploads目錄下的文件"}
+        
+        full_path = path
+        exists = os.path.exists(full_path)
+        
+        debug_info = {
+            "path": path,
+            "full_path": full_path,
+            "exists": exists,
+            "current_dir": os.getcwd(),
+        }
+        
+        if exists:
+            stat = os.stat(full_path)
+            debug_info.update({
+                "size": stat.st_size,
+                "modified": stat.st_mtime,
+            })
+        
+        # 列出uploads目錄內容
+        uploads_content = {}
+        try:
+            if os.path.exists("uploads"):
+                for item in os.listdir("uploads"):
+                    item_path = os.path.join("uploads", item)
+                    if os.path.isdir(item_path):
+                        uploads_content[item] = os.listdir(item_path)
+                    else:
+                        uploads_content[item] = "file"
+        except Exception as e:
+            uploads_content = {"error": str(e)}
+        
+        debug_info["uploads_directory"] = uploads_content
+        
+        return {"success": True, "data": debug_info}
+        
     except Exception as e:
-        result["video_pairs_error"] = str(e)
-    
-    return {"success": True, "data": result}
+        return {"success": False, "error": str(e)}
 
 # 錯誤處理器
 @app.exception_handler(404)
