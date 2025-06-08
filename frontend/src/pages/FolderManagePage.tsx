@@ -1,4 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { systemApi } from '../api/taskApi';
+// Debug: 檢查API連接
+console.log('🔧 DEBUG: FolderManagePage 載入，準備測試API連接...');
+
+// 測試API連接
+systemApi.getHealth()
+  .then(result => {
+    console.log('✅ DEBUG: API連接成功！', result);
+  })
+  .catch(error => {
+    console.error('❌ DEBUG: API連接失敗！', error);
+  });
+
 // 暫時使用 emoji 圖標，稍後添加 heroicons
 const FolderIcon = ({ className, ...props }: any) => <span className={className} {...props}>📁</span>;
 const VideoCameraIcon = ({ className, ...props }: any) => <span className={className} {...props}>🎥</span>;
@@ -38,15 +51,21 @@ const FolderManagePage: React.FC = () => {
   const loadFolders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/folders/');
-      if (response.ok) {
-        const data = await response.json();
-        setFolders(data);
-      } else {
-        console.error('Failed to load folders');
-      }
+      console.log('🔧 DEBUG: 開始載入資料夾列表...');
+      
+      // 使用系統API先測試連接
+      const healthResult = await systemApi.getHealth();
+      console.log('🔧 DEBUG: 健康檢查結果:', healthResult);
+      
+      // 這裡應該調用folders API，但目前先用健康檢查測試
+      // const response = await fetch('/api/folders/');
+      // 臨時模擬數據
+      setFolders([]);
+      console.log('🔧 DEBUG: 資料夾列表載入完成');
+      
     } catch (error) {
-      console.error('Folder loading error:', error);
+      console.error('❌ DEBUG: 資料夾載入錯誤:', error);
+      alert('無法連接到服務器，請檢查網絡連接');
     } finally {
       setLoading(false);
     }
@@ -58,34 +77,17 @@ const FolderManagePage: React.FC = () => {
     
     try {
       setCreating(true);
-      console.log('Creating folder:', newFolderName);
+      console.log('🔧 DEBUG: 創建資料夾:', newFolderName);
       
-      const response = await fetch('/api/folders/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: newFolderName.trim()
-        }),
-      });
-
-      console.log('Response status:', response.status);
+      // 先測試API連接
+      const healthResult = await systemApi.getHealth();
+      console.log('🔧 DEBUG: API連接正常:', healthResult);
       
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Creation successful:', data);
-        setNewFolderName('');
-        setShowCreateModal(false);
-        alert('Folder created successfully!');
-        await loadFolders();
-      } else {
-        const error = await response.json();
-        console.error('Creation failed:', error);
-        alert(error.detail || 'Failed to create folder');
-      }
+      // 顯示連接成功信息
+      alert(`API連接成功！服務器狀態: ${healthResult.status}, 版本: ${healthResult.version}`);
+      
     } catch (error) {
-      console.error('Folder creation error:', error);
+      console.error('❌ DEBUG: 創建資料夾錯誤:', error);
       alert('Network error: Unable to connect to server');
     } finally {
       setCreating(false);
