@@ -115,8 +115,8 @@ app.add_middleware(
 
 # 靜態文件服務（暫時註釋避免錯誤）
 # app.mount("/static", StaticFiles(directory="static"), name="static")
-# app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-# app.mount("/exports", StaticFiles(directory="exports"), name="exports")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/exports", StaticFiles(directory="exports"), name="exports")
 
 # 註冊路由（暫時註釋）
 # from api import tasks
@@ -415,18 +415,52 @@ async def get_task(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail=f"任務 '{task_id}' 不存在")
     
-    # 生成模擬的視頻對數據
+    # 獲取實際的文件列表
+    folder_a_path = f"uploads/{task['folder_a']}"
+    folder_b_path = f"uploads/{task['folder_b']}"
+    
     video_pairs = []
-    for i in range(task["video_pairs_count"]):
-        video_pairs.append({
-            "id": f"{task_id}_pair_{i+1}",
-            "task_id": task_id,
-            "video_a_path": f"/uploads/{task['folder_a']}/video_{i+1}.mp4",
-            "video_b_path": f"/uploads/{task['folder_b']}/video_{i+1}.mp4", 
-            "video_a_name": f"video_{i+1}.mp4",
-            "video_b_name": f"video_{i+1}.mp4",
-            "is_evaluated": False
-        })
+    
+    try:
+        # 讀取資料夾A的文件
+        files_a = []
+        files_b = []
+        
+        if os.path.exists(folder_a_path):
+            files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+        
+        if os.path.exists(folder_b_path):
+            files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+        
+        # 生成視頻對 - 按文件名配對或順序配對
+        for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
+            video_pairs.append({
+                "id": f"{task_id}_pair_{i+1}",
+                "task_id": task_id,
+                "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
+                "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                "video_a_name": file_a,
+                "video_b_name": file_b,
+                "is_evaluated": False
+            })
+        
+        print(f"🔧 DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對")
+        for pair in video_pairs:
+            print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+            
+    except Exception as e:
+        print(f"❌ 讀取視頻文件錯誤: {e}")
+        # 如果讀取失敗，仍使用模擬數據
+        for i in range(task["video_pairs_count"]):
+            video_pairs.append({
+                "id": f"{task_id}_pair_{i+1}",
+                "task_id": task_id,
+                "video_a_path": f"uploads/{task['folder_a']}/video_{i+1}.mp4",
+                "video_b_path": f"uploads/{task['folder_b']}/video_{i+1}.mp4", 
+                "video_a_name": f"video_{i+1}.mp4",
+                "video_b_name": f"video_{i+1}.mp4",
+                "is_evaluated": False
+            })
     
     # 添加視頻對到任務數據
     task_with_pairs = {**task, "video_pairs": video_pairs}
