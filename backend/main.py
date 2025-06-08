@@ -14,6 +14,7 @@ import time
 import json
 import shutil
 from urllib.parse import quote
+from typing import List
 
 # 持久化存儲配置
 DATA_DIR = "data"
@@ -472,9 +473,40 @@ async def get_task(task_id: str):
         else:
             print(f"❌ DEBUG: 資料夾B不存在: {folder_b_path}")
         
-        # 生成視頻對 - 按文件名配對或順序配對
+        # 生成視頻對 - 按文件名配對
         if files_a and files_b:
-            for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
+            # 排序文件列表以確保一致性
+            files_a.sort()
+            files_b.sort()
+            
+            # 按文件名配對（去除擴展名後匹配）
+            matched_pairs = []
+            
+            # 方法1: 嘗試按相同文件名(去擴展名)配對
+            for file_a in files_a:
+                name_a = os.path.splitext(file_a)[0]  # 去除擴展名
+                
+                # 在B文件夾中尋找相同名稱的文件
+                matched_file_b = None
+                for file_b in files_b:
+                    name_b = os.path.splitext(file_b)[0]
+                    if name_a == name_b:
+                        matched_file_b = file_b
+                        break
+                
+                if matched_file_b:
+                    matched_pairs.append((file_a, matched_file_b))
+                    files_b.remove(matched_file_b)  # 移除已配對的文件
+            
+            # 方法2: 如果按名稱配對不成功，則按順序配對剩餘文件
+            remaining_a = [f for f in files_a if not any(f == pair[0] for pair in matched_pairs)]
+            remaining_b = [f for f in files_b]  # files_b已經在上面被修改了
+            
+            for file_a, file_b in zip(remaining_a, remaining_b):
+                matched_pairs.append((file_a, file_b))
+            
+            # 生成視頻對
+            for i, (file_a, file_b) in enumerate(matched_pairs):
                 # URL編碼文件路徑
                 encoded_path_a = f"uploads/{task['folder_a']}/{quote(file_a)}"
                 encoded_path_b = f"uploads/{task['folder_b']}/{quote(file_b)}"
@@ -491,7 +523,10 @@ async def get_task(task_id: str):
             
             print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對")
             for pair in video_pairs:
-                print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+                name_a = os.path.splitext(pair['video_a_name'])[0]
+                name_b = os.path.splitext(pair['video_b_name'])[0]
+                match_type = "名稱匹配" if name_a == name_b else "順序匹配"
+                print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']} ({match_type})")
         else:
             print(f"❌ DEBUG: 沒有找到視頻文件，使用模擬數據")
             raise Exception("沒有找到視頻文件")
