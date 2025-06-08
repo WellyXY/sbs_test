@@ -13,7 +13,7 @@ from contextlib import asynccontextmanager
 import time
 import json
 import shutil
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from typing import List
 
 # 持久化存儲配置
@@ -486,35 +486,82 @@ async def get_task(task_id: str):
             files_a_map = {}  # {base_name: full_filename}
             files_b_map = {}  # {base_name: full_filename}
             
+            # 也建立清理過的文件名映射（用於更靈活的匹配）
+            files_a_clean_map = {}  # {cleaned_name: full_filename}
+            files_b_clean_map = {}  # {cleaned_name: full_filename}
+            
+            def clean_filename_for_matching(filename):
+                """清理文件名用於匹配，去除常見的變化部分"""
+                base = os.path.splitext(filename)[0]
+                # 移除常見的後綴模式
+                import re
+                # 移除像 _seed123456, _share 等後綴
+                cleaned = re.sub(r'_seed\d+', '', base)
+                cleaned = re.sub(r'_share$', '', cleaned)
+                cleaned = re.sub(r'_\d+$', '', cleaned)  # 移除末尾數字
+                return cleaned.strip()
+            
             for file_a in files_a:
                 base_name = os.path.splitext(file_a)[0]
+                clean_name = clean_filename_for_matching(file_a)
                 files_a_map[base_name] = file_a
+                files_a_clean_map[clean_name] = file_a
                 
             for file_b in files_b:
                 base_name = os.path.splitext(file_b)[0]
+                clean_name = clean_filename_for_matching(file_b)
                 files_b_map[base_name] = file_b
+                files_b_clean_map[clean_name] = file_b
             
             print(f"🔧 DEBUG: 資料夾A文件映射: {files_a_map}")
             print(f"🔧 DEBUG: 資料夾B文件映射: {files_b_map}")
+            print(f"🔧 DEBUG: 資料夾A清理後映射: {files_a_clean_map}")
+            print(f"🔧 DEBUG: 資料夾B清理後映射: {files_b_clean_map}")
             
-            # 嘗試先找出兩個資料夾都有的視頻名稱（基於基礎名稱）
-            common_names = set(files_a_map.keys()) & set(files_b_map.keys())
-            common_names = sorted(list(common_names))  # 排序確保一致性
+            # 先嘗試精確的基礎名稱匹配
+            exact_common_names = set(files_a_map.keys()) & set(files_b_map.keys())
+            exact_common_names = sorted(list(exact_common_names))
             
-            print(f"🔧 DEBUG: 共同視頻名稱: {common_names}")
+            # 再嘗試清理後的名稱匹配
+            clean_common_names = set(files_a_clean_map.keys()) & set(files_b_clean_map.keys())
+            clean_common_names = sorted(list(clean_common_names))
+            
+            print(f"🔧 DEBUG: 精確共同視頻名稱: {exact_common_names}")
+            print(f"🔧 DEBUG: 清理後共同視頻名稱: {clean_common_names}")
+            
+            # 選擇最佳匹配策略
+            if exact_common_names:
+                common_names = exact_common_names
+                using_map = files_a_map
+                using_map_b = files_b_map
+                match_type = "精確匹配"
+            elif clean_common_names:
+                common_names = clean_common_names
+                using_map = files_a_clean_map
+                using_map_b = files_b_clean_map
+                match_type = "清理後匹配"
+            else:
+                common_names = []
+                match_type = "無匹配"
+            
+            print(f"🔧 DEBUG: 使用匹配策略: {match_type}, 共同名稱: {common_names}")
             
             if common_names:
                 # 有相同基礎名稱的視頻，按名稱配對
-                print(f"✅ DEBUG: 找到 {len(common_names)} 個相同基礎名稱的視頻，使用1:1配對")
+                print(f"✅ DEBUG: 找到 {len(common_names)} 個相同基礎名稱的視頻，使用1:1配對 ({match_type})")
                 for i, base_name in enumerate(common_names):
-                    file_a = files_a_map[base_name]
-                    file_b = files_b_map[base_name]
+                    file_a = using_map[base_name]
+                    file_b = using_map_b[base_name]
+                    
+                    # URL編碼文件名以處理特殊字符
+                    encoded_file_a = quote(file_a)
+                    encoded_file_b = quote(file_b)
                     
                     video_pairs.append({
                         "id": f"{task_id}_pair_{i+1}",
                         "task_id": task_id,
-                        "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
-                        "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                        "video_a_path": f"uploads/{task['folder_a']}/{encoded_file_a}",
+                        "video_b_path": f"uploads/{task['folder_b']}/{encoded_file_b}",
                         "video_a_name": file_a,
                         "video_b_name": file_b,
                         "is_evaluated": False
@@ -524,7 +571,10 @@ async def get_task(task_id: str):
                 for pair in video_pairs:
                     name_a = os.path.splitext(pair['video_a_name'])[0]
                     name_b = os.path.splitext(pair['video_b_name'])[0]
-                    print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']} (基礎名稱: {name_a})")
+                    print(f"   對 {pair['id']}:")
+                    print(f"     視頻A: {pair['video_a_name']} -> {pair['video_a_path']}")
+                    print(f"     視頻B: {pair['video_b_name']} -> {pair['video_b_path']}")
+                    print(f"     基礎名稱: {name_a}")
                 
                 # 報告未配對的文件
                 unmatched_a = set(files_a_map.keys()) - common_names
@@ -543,11 +593,15 @@ async def get_task(task_id: str):
                     file_a = files_a[i]
                     file_b = files_b[i]
                     
+                    # URL編碼文件名以處理特殊字符
+                    encoded_file_a = quote(file_a)
+                    encoded_file_b = quote(file_b)
+                    
                     video_pairs.append({
                         "id": f"{task_id}_pair_{i+1}",
                         "task_id": task_id,
-                        "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
-                        "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                        "video_a_path": f"uploads/{task['folder_a']}/{encoded_file_a}",
+                        "video_b_path": f"uploads/{task['folder_b']}/{encoded_file_b}",
                         "video_a_name": file_a,
                         "video_b_name": file_b,
                         "is_evaluated": False
@@ -555,7 +609,9 @@ async def get_task(task_id: str):
                 
                 print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (順序配對)")
                 for pair in video_pairs:
-                    print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+                    print(f"   對 {pair['id']}:")
+                    print(f"     視頻A: {pair['video_a_name']} -> {pair['video_a_path']}")
+                    print(f"     視頻B: {pair['video_b_name']} -> {pair['video_b_path']}")
                 
                 # 報告未配對的文件
                 if len(files_a) > pair_count:
