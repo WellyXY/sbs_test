@@ -325,8 +325,22 @@ async def init_test_data():
     """初始化一些測試數據"""
     global folders_storage, tasks_storage
     
-    # 添加測試資料夾
+    # 添加你之前的真實資料夾和測試資料夾
     test_folders = [
+        {
+            "name": "0606dmd",
+            "path": "/uploads/0606dmd",
+            "video_count": 1,
+            "total_size": 1905260,
+            "created_time": int(time.time())
+        },
+        {
+            "name": "shanghaidmd",
+            "path": "/uploads/shanghaidmd",
+            "video_count": 1,
+            "total_size": 1863688,
+            "created_time": int(time.time())
+        },
         {
             "name": "test_folder_a",
             "path": "/uploads/test_folder_a",
@@ -343,8 +357,21 @@ async def init_test_data():
         }
     ]
     
-    # 添加測試任務
+    # 添加你之前的真實任務和測試任務
     test_tasks = [
+        {
+            "id": "task_1",
+            "name": "dmd compare",
+            "description": "",
+            "folder_a": "0606dmd",
+            "folder_b": "shanghaidmd",
+            "is_blind": True,
+            "video_pairs_count": 1,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0
+        },
         {
             "id": "task_test_1",
             "name": "測試對比任務",
@@ -369,7 +396,7 @@ async def init_test_data():
     
     return {
         "success": True,
-        "message": f"測試數據初始化完成：{len(test_folders)}個資料夾，{len(test_tasks)}個任務",
+        "message": f"數據初始化完成：{len(test_folders)}個資料夾（包含你之前的0606dmd、shanghaidmd），{len(test_tasks)}個任務（包含dmd compare）",
         "data": {
             "folders": len(folders_storage),
             "tasks": len(tasks_storage)
