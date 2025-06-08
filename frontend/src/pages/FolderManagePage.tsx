@@ -48,13 +48,16 @@ interface FileInfo {
 
 const FolderManagePage: React.FC = () => {
   const [folders, setFolders] = useState<Folder[]>([]);
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<string>('');
   const [folderFiles, setFolderFiles] = useState<FileInfo[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [currentUploadFile, setCurrentUploadFile] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 加載資料夾列表
@@ -113,59 +116,135 @@ const FolderManagePage: React.FC = () => {
   };
 
   // 上傳文件
-  const uploadFiles = async (files: FileList) => {
-    if (!selectedFolder || files.length === 0) return;
+  const uploadFiles = async () => {
+    if (!selectedFiles || selectedFiles.length === 0 || !selectedFolder) {
+      alert('Please select files and folder');
+      return;
+    }
 
     try {
       setUploading(true);
-      console.log('🔧 DEBUG: 開始上傳文件到資料夾:', selectedFolder);
-      console.log('🔧 DEBUG: 文件數量:', files.length);
+      setUploadProgress(0);
       
-      // 檢查文件大小
-      const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
-      console.log('🔧 DEBUG: 總文件大小:', (totalSize / 1024 / 1024).toFixed(2), 'MB');
+      console.log('🔧 DEBUG: Starting file upload to folder:', selectedFolder);
+      console.log('🔧 DEBUG: File count:', selectedFiles.length);
       
-      if (totalSize > 100 * 1024 * 1024) { // 100MB限制
-        alert('文件總大小超過100MB，請選擇較小的文件');
+      let totalSize = 0;
+      let uploadedSize = 0;
+      
+      for (const file of selectedFiles) {
+        totalSize += file.size;
+      }
+      
+      console.log('🔧 DEBUG: Total file size:', formatFileSize(totalSize));
+      
+      // 檢查文件大小限制
+      const maxFileSize = 100 * 1024 * 1024; // 100MB per file
+      const maxTotalSize = 500 * 1024 * 1024; // 500MB total
+      
+      for (const file of selectedFiles) {
+        if (file.size > maxFileSize) {
+          alert(`File "${file.name}" is too large. Maximum file size is 100MB.`);
+          return;
+        }
+      }
+      
+      if (totalSize > maxTotalSize) {
+        alert(`Total file size is too large. Maximum total size is 500MB.`);
         return;
       }
 
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
-        console.log('🔧 DEBUG: 添加文件:', files[i].name, '大小:', (files[i].size / 1024 / 1024).toFixed(2), 'MB');
+      // 逐個上傳文件並跟蹤進度
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        setCurrentUploadFile(file.name);
+        
+        console.log(`🔧 DEBUG: Uploading file ${i + 1}/${selectedFiles.length}: ${file.name} (${formatFileSize(file.size)})`);
+        
+        const formData = new FormData();
+        formData.append('files', file);
+
+        // 創建XMLHttpRequest以跟蹤進度
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          // 進度回調
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const fileProgress = (uploadedSize + event.loaded) / totalSize * 100;
+              setUploadProgress(Math.round(fileProgress));
+            }
+          });
+          
+          // 完成回調
+          xhr.addEventListener('load', () => {
+            uploadedSize += file.size;
+            const overallProgress = uploadedSize / totalSize * 100;
+            setUploadProgress(Math.round(overallProgress));
+            
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              reject(new Error(`Upload failed: ${xhr.status}`));
+            }
+          });
+          
+          // 錯誤回調
+          xhr.addEventListener('error', () => {
+            reject(new Error('Upload failed: Network error'));
+          });
+          
+          // 超時回調
+          xhr.addEventListener('timeout', () => {
+            reject(new Error('Upload failed: Timeout'));
+          });
+          
+          // 設置請求
+          xhr.open('POST', `https://sbstest-production.up.railway.app/api/folders/${selectedFolder}/upload`);
+          xhr.timeout = 60000; // 60秒超時
+          xhr.send(formData);
+        });
       }
 
-      // 上傳文件，允許更長的上傳時間
-      const response = await api.post(`/api/folders/${selectedFolder}/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        timeout: 300000, // 5分鐘超時，支持大文件上傳
-      });
-
-      console.log('🔧 DEBUG: 上傳響應:', response.data);
-
-      if (response.data.success) {
-        alert(response.data.message || '文件上傳成功！');
-        await loadFolders();
-        await loadFolderFiles(selectedFolder);
-      } else {
-        alert(response.data.error || '上傳失敗');
-      }
-    } catch (error: any) {
-      console.error('❌ DEBUG: 上傳錯誤:', error);
+      console.log('✅ DEBUG: All files uploaded successfully');
       
-      // 針對不同錯誤提供不同的提示
-      if (error.code === 'ERR_NETWORK' || error.message?.includes('SSL')) {
-        alert('網絡連接錯誤，可能是文件太大或網絡不穩定。請嘗試：\n1. 選擇較小的文件\n2. 檢查網絡連接\n3. 稍後重試');
-      } else if (error.code === 'ECONNABORTED') {
-        alert('上傳超時，請選擇較小的文件或檢查網絡連接');
-      } else {
-        alert('上傳失敗：' + (error.response?.data?.message || error.message || '未知錯誤'));
+      // 重新加載文件夾列表和文件列表
+      await loadFolders();
+      if (selectedFolder) {
+        await loadFolderFiles(selectedFolder);
       }
+      
+      // 清空選擇
+      setSelectedFiles(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+      
+      alert(`Successfully uploaded ${selectedFiles.length} files!`);
+      
+    } catch (error) {
+      console.error('❌ DEBUG: Upload error:', error);
+      
+      let errorMessage = 'Upload failed: ';
+      if (error instanceof Error) {
+        if (error.message.includes('SSL') || error.message.includes('ERR_SSL_BAD_RECORD_MAC_ALERT')) {
+          errorMessage += 'SSL connection error. This may be due to file size or network issues. Try uploading smaller files or check your network connection.';
+        } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+          errorMessage += 'Upload timeout. The file may be too large or your connection is slow. Try uploading smaller files.';
+        } else if (error.message.includes('Network')) {
+          errorMessage += 'Network error. Please check your internet connection and try again.';
+        } else {
+          errorMessage += error.message;
+        }
+      } else {
+        errorMessage += 'Unknown error occurred.';
+      }
+      
+      alert(errorMessage);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
+      setCurrentUploadFile('');
     }
   };
 
@@ -199,7 +278,7 @@ const FolderManagePage: React.FC = () => {
 
       if (response.data.success) {
         if (selectedFolder === folderName) {
-          setSelectedFolder(null);
+          setSelectedFolder('');
           setFolderFiles([]);
         }
         alert(response.data.message || '資料夾刪除成功！');
@@ -215,9 +294,9 @@ const FolderManagePage: React.FC = () => {
 
   // 格式化文件大小
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
+    if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
@@ -346,14 +425,14 @@ const FolderManagePage: React.FC = () => {
                       📝 測試上傳
                     </button>
                     <input
-                      ref={fileInputRef}
                       type="file"
+                      ref={fileInputRef}
                       multiple
                       accept="video/*"
-                      className="hidden"
+                      style={{ display: 'none' }}
                       onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
-                          uploadFiles(e.target.files);
+                          setSelectedFiles(Array.from(e.target.files));
                         }
                       }}
                     />
@@ -449,6 +528,52 @@ const FolderManagePage: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* 顯示已選文件 */}
+      {selectedFiles && selectedFiles.length > 0 && (
+        <div className="mt-4">
+          <h4 className="text-md font-medium text-gray-700 mb-2">
+            Selected Files ({selectedFiles.length}):
+          </h4>
+          <div className="max-h-32 overflow-y-auto">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="text-sm text-gray-600 flex justify-between">
+                <span>{file.name}</span>
+                <span>{formatFileSize(file.size)}</span>
+              </div>
+            ))}
+          </div>
+          
+          {/* 上傳按鈕 */}
+          <button
+            onClick={uploadFiles}
+            disabled={uploading || !selectedFolder}
+            className={`mt-3 w-full px-4 py-2 rounded text-white font-medium ${
+              uploading || !selectedFolder
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            {uploading ? 'Uploading...' : 'Upload Files'}
+          </button>
+          
+          {/* 進度條 */}
+          {uploading && (
+            <div className="mt-3">
+              <div className="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Uploading: {currentUploadFile}</span>
+                <span>{uploadProgress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

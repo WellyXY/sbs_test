@@ -1,5 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+} from 'chart.js'
+import { Pie, Bar } from 'react-chartjs-2'
+
+ChartJS.register(
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title
+)
 
 interface TaskStatistics {
   task_id: string
@@ -189,6 +210,133 @@ const ResultsPage: React.FC = () => {
                 style={{ width: `${statistics.preferences.tie_percent}%` }}
               ></div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 圖表區域 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Pie Chart - 偏好分布 */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Preference Distribution</h3>
+          {statistics.total_evaluations > 0 ? (
+            <div className="h-80">
+              <Pie
+                data={{
+                  labels: [
+                    `${statistics.folder_names.folder_a} (A)`,
+                    `${statistics.folder_names.folder_b} (B)`,
+                    'Tie'
+                  ],
+                  datasets: [
+                    {
+                      data: [
+                        statistics.preferences.a_better,
+                        statistics.preferences.b_better,
+                        statistics.preferences.tie,
+                      ],
+                      backgroundColor: [
+                        '#3B82F6', // Blue for A
+                        '#10B981', // Green for B  
+                        '#F59E0B', // Yellow for Tie
+                      ],
+                      borderColor: [
+                        '#2563EB',
+                        '#059669',
+                        '#D97706',
+                      ],
+                      borderWidth: 2,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'bottom' as const,
+                      labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                      },
+                    },
+                    tooltip: {
+                      callbacks: {
+                        label: (context) => {
+                          const label = context.label || '';
+                          const value = context.parsed || 0;
+                          const percentage = ((value / statistics.total_evaluations) * 100).toFixed(1);
+                          return `${label}: ${value} votes (${percentage}%)`;
+                        },
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          ) : (
+            <div className="h-80 flex items-center justify-center text-gray-500">
+              No evaluation data available
+            </div>
+          )}
+        </div>
+
+        {/* Bar Chart - 比較統計 */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparison Chart</h3>
+          <div className="h-80">
+            <Bar
+              data={{
+                labels: ['Folder A', 'Folder B', 'Tie'],
+                datasets: [
+                  {
+                    label: 'Votes',
+                    data: [
+                      statistics.preferences.a_better,
+                      statistics.preferences.b_better,
+                      statistics.preferences.tie,
+                    ],
+                    backgroundColor: [
+                      '#3B82F6', // Blue for A
+                      '#10B981', // Green for B
+                      '#F59E0B', // Yellow for Tie
+                    ],
+                    borderColor: [
+                      '#2563EB',
+                      '#059669',
+                      '#D97706',
+                    ],
+                    borderWidth: 2,
+                  },
+                ],
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: false,
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (context) => {
+                        const value = context.parsed.y || 0;
+                        const percentage = ((value / statistics.total_evaluations) * 100).toFixed(1);
+                        return `${context.label}: ${value} votes (${percentage}%)`;
+                      },
+                    },
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      stepSize: 1,
+                    },
+                  },
+                },
+              }}
+            />
           </div>
         </div>
       </div>
