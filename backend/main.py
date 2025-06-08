@@ -409,6 +409,20 @@ async def init_test_data():
             "created_time": int(time.time()),
             "total_evaluations": 0,
             "completed_evaluations": 0
+        },
+        {
+            "id": "task_demo",
+            "name": "演示視頻對比（外部鏈接）",
+            "description": "使用外部視頻鏈接進行演示",
+            "folder_a": "demo_external",
+            "folder_b": "demo_external",
+            "is_blind": True,
+            "video_pairs_count": 1,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0,
+            "use_external_videos": True
         }
     ]
     
@@ -439,6 +453,22 @@ async def get_task(task_id: str):
     task = next((t for t in tasks_storage if t["id"] == task_id), None)
     if not task:
         raise HTTPException(status_code=404, detail=f"任務 '{task_id}' 不存在")
+    
+    # 特殊處理：外部視頻演示任務
+    if task_id == "task_demo":
+        video_pairs = [
+            {
+                "id": "task_demo_pair_1",
+                "task_id": "task_demo",
+                "video_a_path": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                "video_b_path": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                "video_a_name": "Big Buck Bunny",
+                "video_b_name": "Elephants Dream",
+                "is_evaluated": False
+            }
+        ]
+        task_with_pairs = {**task, "video_pairs": video_pairs}
+        return {"success": True, "data": task_with_pairs, "message": f"任務 '{task['name']}' 詳情（外部視頻）"}
     
     # 獲取實際的文件列表
     folder_a_path = f"uploads/{task['folder_a']}"
