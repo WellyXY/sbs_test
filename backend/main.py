@@ -13,11 +13,13 @@ from contextlib import asynccontextmanager
 import time
 import json
 import shutil
+from urllib.parse import quote
 
 # 持久化存儲配置
 DATA_DIR = "data"
 FOLDERS_FILE = os.path.join(DATA_DIR, "folders.json")
 TASKS_FILE = os.path.join(DATA_DIR, "tasks.json")
+EVALUATIONS_FILE = os.path.join(DATA_DIR, "evaluations.json")
 
 def load_folders():
     """從文件載入資料夾數據"""
@@ -61,6 +63,27 @@ def save_tasks(tasks_data):
     except Exception as e:
         print(f"❌ 保存任務數據失敗: {e}")
 
+def load_evaluations():
+    """從文件載入評估數據"""
+    try:
+        if os.path.exists(EVALUATIONS_FILE):
+            with open(EVALUATIONS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print(f"✅ 載入了 {len(data)} 個評估")
+                return data
+    except Exception as e:
+        print(f"❌ 載入評估數據失敗: {e}")
+    return []
+
+def save_evaluations(evaluations_data):
+    """保存評估數據到文件"""
+    try:
+        with open(EVALUATIONS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(evaluations_data, f, ensure_ascii=False, indent=2)
+        print(f"✅ 保存了 {len(evaluations_data)} 個評估")
+    except Exception as e:
+        print(f"❌ 保存評估數據失敗: {e}")
+
 # 修復導入問題，先註釋掉可能有問題的導入
 # from database.database import engine, SessionLocal, Base
 # from api import folders
@@ -82,11 +105,12 @@ async def lifespan(app: FastAPI):
     print("✅ 文件目錄初始化完成")
     
     # 啟動時載入持久化數據
-    global folders_storage, tasks_storage
+    global folders_storage, tasks_storage, evaluations_storage
     folders_storage = load_folders()
     tasks_storage = load_tasks()
+    evaluations_storage = load_evaluations()
 
-    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務")
+    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務，{len(evaluations_storage)} 個評估")
     
     yield
     
@@ -149,6 +173,7 @@ async def api_health_check():
 # 持久化存儲會在startup時初始化
 folders_storage = []
 tasks_storage = []
+evaluations_storage = []
 
 # 簡單的folders API端點用於測試
 @app.get("/api/folders/")
@@ -450,11 +475,15 @@ async def get_task(task_id: str):
         # 生成視頻對 - 按文件名配對或順序配對
         if files_a and files_b:
             for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
+                # URL編碼文件路徑
+                encoded_path_a = f"uploads/{task['folder_a']}/{quote(file_a)}"
+                encoded_path_b = f"uploads/{task['folder_b']}/{quote(file_b)}"
+                
                 video_pairs.append({
                     "id": f"{task_id}_pair_{i+1}",
                     "task_id": task_id,
-                    "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
-                    "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                    "video_a_path": encoded_path_a,
+                    "video_b_path": encoded_path_b,
                     "video_a_name": file_a,
                     "video_b_name": file_b,
                     "is_evaluated": False
@@ -539,6 +568,55 @@ async def create_task(data: dict):
         "data": new_task,
         "message": f"任務 '{task_name}' 創建成功"
     }
+
+# Evaluations API端點
+@app.get("/api/evaluations/")
+async def get_evaluations():
+    """獲取所有評估"""
+    return {"success": True, "data": evaluations_storage, "message": "評估列表"}
+
+@app.post("/api/evaluations/")
+async def create_evaluation(data: dict):
+    """創建新的評估"""
+    video_pair_id = data.get("video_pair_id", "")
+    choice = data.get("choice", "")
+    is_blind = data.get("is_blind", True)
+    
+    if not video_pair_id:
+        return {"success": False, "error": "視頻對ID不能為空"}
+    
+    if choice not in ["A", "B", "tie"]:
+        return {"success": False, "error": "選擇必須是A、B或tie"}
+    
+    # 創建評估對象
+    new_evaluation = {
+        "id": f"eval_{len(evaluations_storage) + 1}",
+        "video_pair_id": video_pair_id,
+        "choice": choice,
+        "is_blind": is_blind,
+        "created_time": int(time.time()),
+        "user_agent": "web_client"
+    }
+    
+    evaluations_storage.append(new_evaluation)
+    save_evaluations(evaluations_storage)  # 持久化保存
+    
+    print(f"✅ DEBUG: 收到評估 - 視頻對: {video_pair_id}, 選擇: {choice}")
+    
+    return {
+        "success": True,
+        "data": new_evaluation,
+        "message": f"評估提交成功"
+    }
+
+@app.get("/api/evaluations/{video_pair_id}")
+async def get_evaluation_by_pair(video_pair_id: str):
+    """根據視頻對ID獲取評估"""
+    evaluation = next((e for e in evaluations_storage if e["video_pair_id"] == video_pair_id), None)
+    if not evaluation:
+        raise HTTPException(status_code=404, detail=f"未找到視頻對 '{video_pair_id}' 的評估")
+    
+    return {"success": True, "data": evaluation, "message": "評估詳情"}
 
 # 錯誤處理器
 @app.exception_handler(404)
