@@ -119,27 +119,32 @@ const FolderManagePage: React.FC = () => {
 
     try {
       setUploading(true);
-      const formData = new FormData();
+      console.log('🔧 DEBUG: 開始上傳文件到資料夾:', selectedFolder);
       
+      const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
+        console.log('🔧 DEBUG: 添加文件:', files[i].name);
       }
 
-      const response = await fetch(`/api/folders/${selectedFolder}/upload`, {
-        method: 'POST',
-        body: formData,
+      const response = await api.post(`/api/folders/${selectedFolder}/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
-      if (response.ok) {
+      console.log('🔧 DEBUG: 上傳響應:', response.data);
+
+      if (response.data.success) {
+        alert(response.data.message || '文件上傳成功！');
         await loadFolders();
         await loadFolderFiles(selectedFolder);
       } else {
-        const error = await response.json();
-        alert(error.detail || 'Upload failed');
+        alert(response.data.error || '上傳失敗');
       }
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed');
+      console.error('❌ DEBUG: 上傳錯誤:', error);
+      alert('上傳失敗，請檢查網絡連接');
     } finally {
       setUploading(false);
     }
@@ -148,13 +153,18 @@ const FolderManagePage: React.FC = () => {
   // 載入資料夾文件
   const loadFolderFiles = async (folderName: string) => {
     try {
-      const response = await fetch(`/api/folders/${folderName}/files`);
-      if (response.ok) {
-        const data = await response.json();
-        setFolderFiles(data);
+      console.log('🔧 DEBUG: 載入資料夾文件:', folderName);
+      
+      const response = await api.get(`/api/folders/${folderName}/files`);
+      console.log('🔧 DEBUG: 文件列表響應:', response.data);
+      
+      if (response.data.success) {
+        setFolderFiles(response.data.data);
+      } else {
+        console.error('❌ DEBUG: 載入文件列表失敗:', response.data.error);
       }
     } catch (error) {
-      console.error('載入文件列表錯誤:', error);
+      console.error('❌ DEBUG: 載入文件列表錯誤:', error);
     }
   };
 
@@ -163,23 +173,24 @@ const FolderManagePage: React.FC = () => {
     if (!confirm(`確定要刪除資料夾 "${folderName}" 嗎？此操作不可撤銷。`)) return;
 
     try {
-      const response = await fetch(`/api/folders/${folderName}`, {
-        method: 'DELETE',
-      });
+      console.log('🔧 DEBUG: 刪除資料夾:', folderName);
+      
+      const response = await api.delete(`/api/folders/${folderName}`);
+      console.log('🔧 DEBUG: 刪除響應:', response.data);
 
-      if (response.ok) {
+      if (response.data.success) {
         if (selectedFolder === folderName) {
           setSelectedFolder(null);
           setFolderFiles([]);
         }
+        alert(response.data.message || '資料夾刪除成功！');
         await loadFolders();
       } else {
-        const error = await response.json();
-        alert(error.detail || '刪除失敗');
+        alert(response.data.error || '刪除失敗');
       }
     } catch (error) {
-      console.error('刪除資料夾錯誤:', error);
-      alert('刪除失敗');
+      console.error('❌ DEBUG: 刪除資料夾錯誤:', error);
+      alert('刪除失敗，請檢查網絡連接');
     }
   };
 

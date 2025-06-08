@@ -123,6 +123,50 @@ async def create_folder(data: dict):
         "message": f"資料夾 '{folder_name}' 創建成功"
     }
 
+@app.get("/api/folders/{folder_name}/files")
+async def get_folder_files(folder_name: str):
+    # 檢查資料夾是否存在
+    folder = next((f for f in folders_storage if f["name"] == folder_name), None)
+    if not folder:
+        return {"success": False, "error": "資料夾不存在"}
+    
+    # 模擬返回空文件列表（實際應該掃描文件系統）
+    return {"success": True, "data": [], "message": f"資料夾 '{folder_name}' 的文件列表"}
+
+@app.post("/api/folders/{folder_name}/upload")
+async def upload_files(folder_name: str, files: list = File(...)):
+    # 檢查資料夾是否存在
+    folder = next((f for f in folders_storage if f["name"] == folder_name), None)
+    if not folder:
+        return {"success": False, "error": "資料夾不存在"}
+    
+    # 模擬文件上傳成功（實際應該保存文件）
+    uploaded_count = len(files) if isinstance(files, list) else 1
+    
+    return {
+        "success": True, 
+        "data": {
+            "uploaded_files": uploaded_count,
+            "folder_name": folder_name
+        },
+        "message": f"成功上傳 {uploaded_count} 個文件到資料夾 '{folder_name}'"
+    }
+
+@app.delete("/api/folders/{folder_name}")
+async def delete_folder(folder_name: str):
+    # 檢查資料夾是否存在
+    global folders_storage
+    folder = next((f for f in folders_storage if f["name"] == folder_name), None)
+    if not folder:
+        return {"success": False, "error": "資料夾不存在"}
+    
+    # 從存儲中移除
+    folders_storage = [f for f in folders_storage if f["name"] != folder_name]
+    
+    return {
+        "success": True,
+        "message": f"資料夾 '{folder_name}' 已刪除"
+    }
 
 @app.get("/api/formats", summary="支持的視頻格式", description="獲取系統支持的視頻文件格式列表")
 async def get_supported_formats():
