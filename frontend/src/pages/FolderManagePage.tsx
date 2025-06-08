@@ -137,12 +137,12 @@ const FolderManagePage: React.FC = () => {
         console.log('🔧 DEBUG: 添加文件:', files[i].name, '大小:', (files[i].size / 1024 / 1024).toFixed(2), 'MB');
       }
 
-      // 降低超時時間，避免SSL錯誤
+      // 上傳文件，允許更長的上傳時間
       const response = await api.post(`/api/folders/${selectedFolder}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        timeout: 10000, // 10秒超時
+        timeout: 300000, // 5分鐘超時，支持大文件上傳
       });
 
       console.log('🔧 DEBUG: 上傳響應:', response.data);

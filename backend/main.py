@@ -224,7 +224,7 @@ async def get_folder_files(folder_name: str):
         return {"success": False, "error": f"獲取文件列表失敗: {str(e)}"}
 
 @app.post("/api/folders/{folder_name}/upload")
-async def upload_files(folder_name: str, files: list = File(...)):
+async def upload_files(folder_name: str, files: list[UploadFile] = File(...)):
     # 檢查資料夾是否存在
     folder = next((f for f in folders_storage if f["name"] == folder_name), None)
     if not folder:
