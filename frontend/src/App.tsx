@@ -1,4 +1,4 @@
-import React from 'react'
+// import React from 'react'  // React 17+ 不需要顯式導入
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Layout from './components/Layout'
