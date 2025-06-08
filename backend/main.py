@@ -178,17 +178,17 @@ evaluations_storage = []
 # 簡單的folders API端點用於測試
 @app.get("/api/folders/")
 async def get_folders():
-    return {"success": True, "data": folders_storage, "message": "資料夾列表"}
+    return {"success": True, "data": folders_storage, "message": "Folder list"}
 
 @app.post("/api/folders/create")
 async def create_folder(data: dict):
     folder_name = data.get("name", "")
     if not folder_name:
-        return {"success": False, "error": "資料夾名稱不能為空"}
+        return {"success": False, "error": "Folder name cannot be empty"}
     
     # 檢查是否已存在
     if any(folder["name"] == folder_name for folder in folders_storage):
-        return {"success": False, "error": f"資料夾 '{folder_name}' 已存在"}
+        return {"success": False, "error": f"Folder '{folder_name}' already exists"}
     
     # 創建資料夾對象並保存到文件
     new_folder = {
@@ -204,45 +204,52 @@ async def create_folder(data: dict):
     return {
         "success": True, 
         "data": new_folder,
-        "message": f"資料夾 '{folder_name}' 創建成功"
+        "message": f"Folder '{folder_name}' created successfully"
     }
 
 @app.get("/api/folders/{folder_name}/files")
 async def get_folder_files(folder_name: str):
     try:
-        print(f"🔧 DEBUG: 查找資料夾文件，資料夾名稱: '{folder_name}'")
-        print(f"🔧 DEBUG: 當前存儲的資料夾: {[f['name'] for f in folders_storage]}")
+        print(f"🔧 DEBUG: Looking for folder files, folder name: '{folder_name}'")
+        print(f"🔧 DEBUG: Current stored folders: {[f['name'] for f in folders_storage]}")
         
         # 檢查資料夾是否存在
         folder = next((f for f in folders_storage if f["name"] == folder_name), None)
         if not folder:
-            print(f"❌ DEBUG: 找不到資料夾 '{folder_name}'")
-            return {"success": False, "error": f"資料夾 '{folder_name}' 不存在"}
+            print(f"❌ DEBUG: Folder '{folder_name}' not found")
+            return {"success": False, "error": f"Folder '{folder_name}' does not exist"}
         
         print(f"✅ DEBUG: 找到資料夾: {folder}")
         
         # 掃描資料夾中的真實文件
         folder_path = f"uploads/{folder_name}"
-        files_list = []
+        files = []
         
         if os.path.exists(folder_path):
-            for filename in os.listdir(folder_path):
-                file_path = os.path.join(folder_path, filename)
-                if os.path.isfile(file_path):
+            for file in os.listdir(folder_path):
+                if file.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts')):
+                    file_path = os.path.join(folder_path, file)
+                    file_size = os.path.getsize(file_path)
                     file_stat = os.stat(file_path)
-                    files_list.append({
-                        "filename": filename,
-                        "size": file_stat.st_size,
+                    
+                    files.append({
+                        "filename": file,
+                        "size": file_size,
                         "path": file_path,
                         "created_time": int(file_stat.st_ctime)
                     })
         
-        print(f"✅ DEBUG: 掃描到 {len(files_list)} 個文件")
+        # 更新資料夾的文件統計
+        folder["video_count"] = len(files)
+        folder["total_size"] = sum(f["size"] for f in files)
+        save_folders(folders_storage)
+        
+        print(f"✅ DEBUG: Found {len(files)} files in folder")
         
         return {
-            "success": True, 
-            "data": files_list, 
-            "message": f"資料夾 '{folder_name}' 的文件列表 ({len(files_list)} 個文件)"
+            "success": True,
+            "data": files,
+            "message": f"File list for folder '{folder_name}' ({len(files)} files)"
         }
     except Exception as e:
         print(f"❌ DEBUG: 獲取文件列表錯誤: {e}")
@@ -610,6 +617,75 @@ async def get_evaluation_by_pair(video_pair_id: str):
         raise HTTPException(status_code=404, detail=f"未找到視頻對 '{video_pair_id}' 的評估")
     
     return {"success": True, "data": evaluation, "message": "評估詳情"}
+
+# Statistics API端點
+@app.get("/api/statistics/{task_id}")
+async def get_task_statistics(task_id: str):
+    """獲取任務統計數據"""
+    # 檢查任務是否存在
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+    
+    # 獲取該任務的評估數據
+    task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
+    
+    # 計算統計數據
+    total_evaluations = len(task_evaluations)
+    preference_a = len([e for e in task_evaluations if e["choice"] == "A"])
+    preference_b = len([e for e in task_evaluations if e["choice"] == "B"])
+    ties = len([e for e in task_evaluations if e["choice"] == "tie"])
+    
+    # 計算百分比
+    preference_a_percent = (preference_a / total_evaluations * 100) if total_evaluations > 0 else 0
+    preference_b_percent = (preference_b / total_evaluations * 100) if total_evaluations > 0 else 0
+    ties_percent = (ties / total_evaluations * 100) if total_evaluations > 0 else 0
+    
+    # 計算完成率（假設每個視頻對需要1次評估）
+    completion_rate = (total_evaluations / task["video_pairs_count"] * 100) if task["video_pairs_count"] > 0 else 0
+    
+    statistics = {
+        "task_id": task_id,
+        "task_name": task["name"],
+        "total_evaluations": total_evaluations,
+        "video_pairs_count": task["video_pairs_count"],
+        "completion_rate": round(completion_rate, 1),
+        "preferences": {
+            "a_better": preference_a,
+            "b_better": preference_b,
+            "tie": ties,
+            "a_better_percent": round(preference_a_percent, 1),
+            "b_better_percent": round(preference_b_percent, 1),
+            "tie_percent": round(ties_percent, 1)
+        },
+        "folder_names": {
+            "folder_a": task["folder_a"],
+            "folder_b": task["folder_b"]
+        }
+    }
+    
+    return {"success": True, "data": statistics, "message": "Task statistics retrieved successfully"}
+
+@app.get("/api/statistics/")
+async def get_all_statistics():
+    """獲取所有任務的統計概覽"""
+    all_stats = []
+    
+    for task in tasks_storage:
+        task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task["id"])]
+        total_evaluations = len(task_evaluations)
+        completion_rate = (total_evaluations / task["video_pairs_count"] * 100) if task["video_pairs_count"] > 0 else 0
+        
+        all_stats.append({
+            "task_id": task["id"],
+            "task_name": task["name"],
+            "total_evaluations": total_evaluations,
+            "video_pairs_count": task["video_pairs_count"],
+            "completion_rate": round(completion_rate, 1),
+            "status": task["status"]
+        })
+    
+    return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
 
 # 錯誤處理器
 @app.exception_handler(404)

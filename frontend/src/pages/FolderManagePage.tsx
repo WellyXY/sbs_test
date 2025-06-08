@@ -240,8 +240,8 @@ const FolderManagePage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">資料夾管理</h1>
-        <p className="mt-2 text-gray-600">創建資料夾並上傳視頻文件，用於對比測試</p>
+        <h1 className="text-3xl font-bold text-gray-900">Folder Management</h1>
+        <p className="mt-2 text-gray-600">Create folders and upload video files for comparison testing</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -249,13 +249,13 @@ const FolderManagePage: React.FC = () => {
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-md">
             <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900">資料夾列表</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Folder List</h2>
               <button
                 onClick={() => setShowCreateModal(true)}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <PlusIcon className="h-4 w-4 mr-1" />
-                新建
+                ➕ Create Folder
               </button>
             </div>
             
@@ -265,7 +265,7 @@ const FolderManagePage: React.FC = () => {
               ) : folders.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <FolderIcon className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                  <p>尚未創建任何資料夾</p>
+                  <p>No folders created yet</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -405,7 +405,7 @@ const FolderManagePage: React.FC = () => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-gray-900">創建新資料夾</h3>
+                <h3 className="text-lg font-medium text-gray-900">Create New Folder</h3>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -416,13 +416,13 @@ const FolderManagePage: React.FC = () => {
               
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  資料夾名稱
+                  Folder Name
                 </label>
                 <input
                   type="text"
                   value={newFolderName}
                   onChange={(e) => setNewFolderName(e.target.value)}
-                  placeholder="輸入資料夾名稱"
+                  placeholder="Enter folder name"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
@@ -437,14 +437,14 @@ const FolderManagePage: React.FC = () => {
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200"
                 >
-                  取消
+                  Cancel
                 </button>
                 <button
                   onClick={createFolder}
                   disabled={!newFolderName.trim()}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
-                  創建
+                  Create
                 </button>
               </div>
             </div>

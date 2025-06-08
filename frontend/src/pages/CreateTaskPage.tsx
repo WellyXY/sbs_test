@@ -89,7 +89,7 @@ const CreateTaskPage: React.FC = () => {
       console.log('🔧 DEBUG: 創建任務響應:', response.data);
 
       if (response.data.success) {
-        alert(`任務創建成功！匹配了 ${response.data.data.video_pairs_count || 0} 個視頻對`);
+        alert(`Task created successfully! Matched ${response.data.data.video_pairs_count || 0} video pairs`);
         navigate('/tasks');
       } else {
         alert(response.data.error || '創建任務失敗');
