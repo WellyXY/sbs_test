@@ -736,6 +736,77 @@ async def get_all_statistics():
     
     return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
 
+# 視頻文件檢查端點（調試用）
+@app.get("/api/debug/video-check/{task_id}")
+async def debug_video_check(task_id: str):
+    """檢查任務的視頻文件是否存在"""
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        return {"success": False, "error": "任務不存在"}
+    
+    # 檢查資料夾和文件
+    folder_a_path = f"uploads/{task['folder_a']}"
+    folder_b_path = f"uploads/{task['folder_b']}"
+    
+    result = {
+        "task_id": task_id,
+        "folder_a": task['folder_a'],
+        "folder_b": task['folder_b'],
+        "current_working_directory": os.getcwd(),
+        "folder_a_path": folder_a_path,
+        "folder_b_path": folder_b_path,
+        "folder_a_exists": os.path.exists(folder_a_path),
+        "folder_b_exists": os.path.exists(folder_b_path),
+        "folder_a_files": [],
+        "folder_b_files": [],
+        "video_pairs_check": []
+    }
+    
+    # 檢查資料夾A的文件
+    if os.path.exists(folder_a_path):
+        try:
+            all_files_a = os.listdir(folder_a_path)
+            result["folder_a_files"] = all_files_a
+        except Exception as e:
+            result["folder_a_error"] = str(e)
+    
+    # 檢查資料夾B的文件  
+    if os.path.exists(folder_b_path):
+        try:
+            all_files_b = os.listdir(folder_b_path)
+            result["folder_b_files"] = all_files_b
+        except Exception as e:
+            result["folder_b_error"] = str(e)
+    
+    # 檢查視頻對
+    try:
+        task_data = await get_task(task_id)
+        if task_data["success"] and task_data["data"].get("video_pairs"):
+            for pair in task_data["data"]["video_pairs"]:
+                video_a_full_path = pair["video_a_path"].replace("uploads/", "uploads/")
+                video_b_full_path = pair["video_b_path"].replace("uploads/", "uploads/")
+                
+                pair_check = {
+                    "pair_id": pair["id"],
+                    "video_a_name": pair["video_a_name"],
+                    "video_b_name": pair["video_b_name"],
+                    "video_a_path": pair["video_a_path"],
+                    "video_b_path": pair["video_b_path"],
+                    "video_a_exists": os.path.exists(video_a_full_path),
+                    "video_b_exists": os.path.exists(video_b_full_path)
+                }
+                
+                if os.path.exists(video_a_full_path):
+                    pair_check["video_a_size"] = os.path.getsize(video_a_full_path)
+                if os.path.exists(video_b_full_path):
+                    pair_check["video_b_size"] = os.path.getsize(video_b_full_path)
+                    
+                result["video_pairs_check"].append(pair_check)
+    except Exception as e:
+        result["video_pairs_error"] = str(e)
+    
+    return {"success": True, "data": result}
+
 # 錯誤處理器
 @app.exception_handler(404)
 async def not_found_handler(request, exc):

@@ -79,6 +79,17 @@ const BlindTestPage: React.FC = () => {
           console.log('🔧 DEBUG: 任務數據:', taskData)
           setTask(taskData)
           
+          // 檢查視頻文件是否存在
+          try {
+            const debugResponse = await fetch(`https://sbstest-production.up.railway.app/api/debug/video-check/${taskId}`)
+            if (debugResponse.ok) {
+              const debugResult = await debugResponse.json()
+              console.log('🔧 DEBUG: 視頻文件檢查結果:', debugResult)
+            }
+          } catch (debugError) {
+            console.log('🔧 DEBUG: 視頻檢查失敗:', debugError)
+          }
+          
           if (taskData.video_pairs && taskData.video_pairs.length > 0) {
             setCurrentPair(taskData.video_pairs[0])
             console.log('✅ DEBUG: 設置第一個視頻對:', taskData.video_pairs[0])
@@ -347,6 +358,16 @@ const BlindTestPage: React.FC = () => {
               muted
               playsInline
               src={getVideoUrl(currentPair.video_a_path)}
+              onError={(e) => {
+                console.error('❌ DEBUG: Video A 加載錯誤:', e)
+                console.error('❌ DEBUG: Video A URL:', getVideoUrl(currentPair.video_a_path))
+              }}
+              onLoadStart={() => {
+                console.log('🔧 DEBUG: Video A 開始加載:', getVideoUrl(currentPair.video_a_path))
+              }}
+              onCanPlay={() => {
+                console.log('✅ DEBUG: Video A 可以播放')
+              }}
             >
               Your browser does not support video playback
             </video>
@@ -364,6 +385,16 @@ const BlindTestPage: React.FC = () => {
               muted
               playsInline
               src={getVideoUrl(currentPair.video_b_path)}
+              onError={(e) => {
+                console.error('❌ DEBUG: Video B 加載錯誤:', e)
+                console.error('❌ DEBUG: Video B URL:', getVideoUrl(currentPair.video_b_path))
+              }}
+              onLoadStart={() => {
+                console.log('🔧 DEBUG: Video B 開始加載:', getVideoUrl(currentPair.video_b_path))
+              }}
+              onCanPlay={() => {
+                console.log('✅ DEBUG: Video B 可以播放')
+              }}
             >
               Your browser does not support video playback
             </video>
