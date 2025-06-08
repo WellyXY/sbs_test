@@ -384,46 +384,27 @@ async def get_tasks():
 @app.get("/api/tasks/{task_id}")
 async def get_task(task_id: str):
     """獲取單個任務詳情"""
-    try:
-        print('🔧 DEBUG: 查找任務ID:', task_id)
-        
-        # 查找任務
-        task = next((t for t in tasks_storage if t["id"] == task_id), None)
-        if not task:
-            print(f"❌ DEBUG: 找不到任務 '{task_id}'")
-            return {"success": False, "error": f"任務 '{task_id}' 不存在"}
-        
-        print(f"✅ DEBUG: 找到任務: {task}")
-        
-        # 為測試頁面生成模擬的視頻對
-        video_pairs = []
-        folder_a = task.get("folder_a", "")
-        folder_b = task.get("folder_b", "")
-        
-        for i in range(task.get("video_pairs_count", 0)):
-            video_pairs.append({
-                "id": f"pair_{task_id}_{i}",
-                "task_id": task_id,
-                "video_a_path": f"/uploads/{folder_a}/video_{i+1}.mp4",
-                "video_b_path": f"/uploads/{folder_b}/video_{i+1}.mp4",
-                "video_a_name": f"Video A - {i+1}",
-                "video_b_name": f"Video B - {i+1}",
-                "is_evaluated": False
-            })
-        
-        # 添加視頻對到任務數據
-        task_with_pairs = task.copy()
-        task_with_pairs["video_pairs"] = video_pairs
-        
-        return {
-            "success": True,
-            "data": task_with_pairs,
-            "message": f"任務 '{task['name']}' 詳情"
-        }
-        
-    except Exception as e:
-        print(f"❌ DEBUG: 獲取任務錯誤: {e}")
-        return {"success": False, "error": f"獲取任務失敗: {str(e)}"}
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"任務 '{task_id}' 不存在")
+    
+    # 生成模擬的視頻對數據
+    video_pairs = []
+    for i in range(task["video_pairs_count"]):
+        video_pairs.append({
+            "id": f"{task_id}_pair_{i+1}",
+            "task_id": task_id,
+            "video_a_path": f"/uploads/{task['folder_a']}/video_{i+1}.mp4",
+            "video_b_path": f"/uploads/{task['folder_b']}/video_{i+1}.mp4", 
+            "video_a_name": f"video_{i+1}.mp4",
+            "video_b_name": f"video_{i+1}.mp4",
+            "is_evaluated": False
+        })
+    
+    # 添加視頻對到任務數據
+    task_with_pairs = {**task, "video_pairs": video_pairs}
+    
+    return {"success": True, "data": task_with_pairs, "message": f"任務 '{task['name']}' 詳情"}
 
 @app.post("/api/tasks/")
 async def create_task(data: dict):
@@ -478,41 +459,6 @@ async def create_task(data: dict):
         "data": new_task,
         "message": f"任務 '{task_name}' 創建成功"
     }
-
-# 評估API端點
-@app.post("/api/evaluations/")
-async def submit_evaluation(data: dict):
-    """提交評估結果"""
-    try:
-        video_pair_id = data.get("video_pair_id", "")
-        choice = data.get("choice", "")
-        is_blind = data.get("is_blind", True)
-        
-        print(f"🔧 DEBUG: 提交評估 - video_pair_id: {video_pair_id}, choice: {choice}")
-        
-        if not video_pair_id or not choice:
-            return {"success": False, "error": "缺少必要參數"}
-        
-        # 模擬評估提交成功
-        evaluation = {
-            "id": f"eval_{int(time.time())}",
-            "video_pair_id": video_pair_id,
-            "choice": choice,
-            "is_blind": is_blind,
-            "submitted_time": int(time.time())
-        }
-        
-        print(f"✅ DEBUG: 評估提交成功: {evaluation}")
-        
-        return {
-            "success": True,
-            "data": evaluation,
-            "message": "評估提交成功"
-        }
-        
-    except Exception as e:
-        print(f"❌ DEBUG: 評估提交錯誤: {e}")
-        return {"success": False, "error": f"評估提交失敗: {str(e)}"}
 
 # 錯誤處理器
 @app.exception_handler(404)

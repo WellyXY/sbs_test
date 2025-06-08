@@ -71,20 +71,25 @@ const BlindTestPage: React.FC = () => {
       console.log('🔧 DEBUG: 任務API響應狀態:', response.status)
       
       if (response.ok) {
-        const responseData = await response.json()
-        console.log('🔧 DEBUG: 任務響應:', responseData)
+        const result = await response.json()
+        console.log('🔧 DEBUG: API響應:', result)
         
-        if (responseData.success && responseData.data) {
-          const taskData = responseData.data
+        if (result.success && result.data) {
+          const taskData = result.data
           console.log('🔧 DEBUG: 任務數據:', taskData)
           setTask(taskData)
           
           if (taskData.video_pairs && taskData.video_pairs.length > 0) {
             setCurrentPair(taskData.video_pairs[0])
+            console.log('✅ DEBUG: 設置第一個視頻對:', taskData.video_pairs[0])
+          } else {
+            console.log('❌ DEBUG: 沒有找到視頻對')
+            alert('此任務沒有視頻對可供測試')
+            navigate('/tasks')
           }
         } else {
-          console.error('❌ DEBUG: API響應格式錯誤:', responseData)
-          alert(responseData.error || '載入任務失敗')
+          console.error('❌ DEBUG: API響應格式錯誤:', result)
+          alert('載入任務數據格式錯誤')
           navigate('/tasks')
         }
       } else {
@@ -134,7 +139,7 @@ const BlindTestPage: React.FC = () => {
       setSubmitting(true)
       console.log('Submitting evaluation:', { video_pair_id: currentPair.id, choice: selectedChoice })
       
-      const response = await fetch('https://sbstest-production.up.railway.app/api/evaluations/', {
+      const response = await fetch('/api/evaluations/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
