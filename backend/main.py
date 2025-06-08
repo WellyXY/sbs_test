@@ -419,6 +419,11 @@ async def get_task(task_id: str):
     folder_a_path = f"uploads/{task['folder_a']}"
     folder_b_path = f"uploads/{task['folder_b']}"
     
+    print(f"🔧 DEBUG: 檢查資料夾路徑:")
+    print(f"   資料夾A: {folder_a_path} (存在: {os.path.exists(folder_a_path)})")
+    print(f"   資料夾B: {folder_b_path} (存在: {os.path.exists(folder_b_path)})")
+    print(f"   當前工作目錄: {os.getcwd()}")
+    
     video_pairs = []
     
     try:
@@ -427,26 +432,40 @@ async def get_task(task_id: str):
         files_b = []
         
         if os.path.exists(folder_a_path):
-            files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+            all_files_a = os.listdir(folder_a_path)
+            files_a = [f for f in all_files_a if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+            print(f"🔧 DEBUG: 資料夾A所有文件: {all_files_a}")
+            print(f"🔧 DEBUG: 資料夾A視頻文件: {files_a}")
+        else:
+            print(f"❌ DEBUG: 資料夾A不存在: {folder_a_path}")
         
         if os.path.exists(folder_b_path):
-            files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+            all_files_b = os.listdir(folder_b_path)
+            files_b = [f for f in all_files_b if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
+            print(f"🔧 DEBUG: 資料夾B所有文件: {all_files_b}")
+            print(f"🔧 DEBUG: 資料夾B視頻文件: {files_b}")
+        else:
+            print(f"❌ DEBUG: 資料夾B不存在: {folder_b_path}")
         
         # 生成視頻對 - 按文件名配對或順序配對
-        for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
-            video_pairs.append({
-                "id": f"{task_id}_pair_{i+1}",
-                "task_id": task_id,
-                "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
-                "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
-                "video_a_name": file_a,
-                "video_b_name": file_b,
-                "is_evaluated": False
-            })
-        
-        print(f"🔧 DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對")
-        for pair in video_pairs:
-            print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+        if files_a and files_b:
+            for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
+                video_pairs.append({
+                    "id": f"{task_id}_pair_{i+1}",
+                    "task_id": task_id,
+                    "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
+                    "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                    "video_a_name": file_a,
+                    "video_b_name": file_b,
+                    "is_evaluated": False
+                })
+            
+            print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對")
+            for pair in video_pairs:
+                print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+        else:
+            print(f"❌ DEBUG: 沒有找到視頻文件，使用模擬數據")
+            raise Exception("沒有找到視頻文件")
             
     except Exception as e:
         print(f"❌ 讀取視頻文件錯誤: {e}")
