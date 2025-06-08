@@ -142,10 +142,14 @@ if __name__ == "__main__":
     print("📖 API 文檔: http://localhost:8000/api/docs")
     print("🎯 前端地址: http://localhost:3000")
     
+    # 從環境變數獲取端口，預設為8000
+    port = int(os.environ.get("PORT", 8000))
+    print(f"🔧 使用端口: {port}")
+    
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True,
+        port=port,
+        reload=False,  # 生產環境關閉reload
         log_level="info"
     ) 
