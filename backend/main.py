@@ -91,6 +91,7 @@ async def api_health_check():
 
 # 簡單的內存存儲（生產環境應該使用數據庫）
 folders_storage = []
+tasks_storage = []
 
 # 簡單的folders API端點用於測試
 @app.get("/api/folders/")
@@ -218,6 +219,63 @@ async def get_supported_formats():
         "message": "支持的視頻格式列表"
     }
 
+# Tasks API端點
+@app.get("/api/tasks/")
+async def get_tasks():
+    return {"success": True, "data": tasks_storage, "message": "任務列表"}
+
+@app.post("/api/tasks/")
+async def create_task(data: dict):
+    task_name = data.get("name", "")
+    folder_a = data.get("folder_a", "")
+    folder_b = data.get("folder_b", "")
+    is_blind = data.get("is_blind", True)
+    description = data.get("description", "")
+    
+    if not task_name:
+        return {"success": False, "error": "任務名稱不能為空"}
+    
+    if not folder_a or not folder_b:
+        return {"success": False, "error": "請選擇兩個資料夾"}
+    
+    if folder_a == folder_b:
+        return {"success": False, "error": "請選擇兩個不同的資料夾"}
+    
+    # 檢查資料夾是否存在
+    folder_a_obj = next((f for f in folders_storage if f["name"] == folder_a), None)
+    folder_b_obj = next((f for f in folders_storage if f["name"] == folder_b), None)
+    
+    if not folder_a_obj:
+        return {"success": False, "error": f"資料夾 '{folder_a}' 不存在"}
+    
+    if not folder_b_obj:
+        return {"success": False, "error": f"資料夾 '{folder_b}' 不存在"}
+    
+    # 計算視頻對數量（模擬）
+    video_pairs_count = min(folder_a_obj["video_count"], folder_b_obj["video_count"])
+    
+    # 創建任務對象
+    new_task = {
+        "id": f"task_{len(tasks_storage) + 1}",
+        "name": task_name,
+        "description": description,
+        "folder_a": folder_a,
+        "folder_b": folder_b,
+        "is_blind": is_blind,
+        "video_pairs_count": video_pairs_count,
+        "status": "active",
+        "created_time": int(time.time()),
+        "total_evaluations": 0,
+        "completed_evaluations": 0
+    }
+    
+    tasks_storage.append(new_task)
+    
+    return {
+        "success": True,
+        "data": new_task,
+        "message": f"任務 '{task_name}' 創建成功"
+    }
 
 # 錯誤處理器
 @app.exception_handler(404)

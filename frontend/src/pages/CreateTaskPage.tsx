@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+// 使用與taskApi相同的配置
+const API_BASE_URL = 'https://sbstest-production.up.railway.app';
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 interface Folder {
   name: string;
@@ -23,73 +34,73 @@ const CreateTaskPage: React.FC = () => {
   // Load folder list
   const loadFolders = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/folders/')
-      if (response.ok) {
-        const data = await response.json()
-        // API returns array directly, not wrapped in folders property
-        setFolders(Array.isArray(data) ? data : [])
+      setLoading(true);
+      console.log('🔧 DEBUG: 載入Create Task頁面的資料夾列表...');
+      
+      const response = await api.get('/api/folders/');
+      console.log('🔧 DEBUG: Create Task資料夾API響應:', response.data);
+      
+      if (response.data.success) {
+        setFolders(response.data.data);
+        console.log('🔧 DEBUG: 載入資料夾成功:', response.data.data.length, '個資料夾');
       } else {
-        alert('Failed to load folders');
+        console.error('❌ DEBUG: 載入資料夾失敗:', response.data.error);
+        alert('Failed to load folders: ' + response.data.error);
       }
     } catch (error) {
-      console.error('Folder loading error:', error);
+      console.error('❌ DEBUG: 資料夾載入錯誤:', error);
       alert('Failed to load folders');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Create task
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     
     if (!taskName.trim()) {
       alert('Please enter task name');
-      return
+      return;
     }
     
     if (!folderA || !folderB) {
       alert('Please select two folders');
-      return
+      return;
     }
     
     if (folderA === folderB) {
       alert('Please select two different folders');
-      return
+      return;
     }
 
     try {
-      setLoading(true)
-      const response = await fetch('/api/tasks/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: taskName,
-          folder_a: folderA,
-          folder_b: folderB,
-          is_blind: isBlind,
-          description: taskDescription || undefined
-        }),
-      })
+      setCreating(true);
+      console.log('🔧 DEBUG: 創建任務:', { taskName, folderA, folderB, isBlind });
+      
+      const response = await api.post('/api/tasks/', {
+        name: taskName,
+        folder_a: folderA,
+        folder_b: folderB,
+        is_blind: isBlind,
+        description: taskDescription || undefined
+      });
 
-      if (response.ok) {
-        const task = await response.json()
-        alert(`Task created successfully! Matched ${task.video_pairs_count} video pairs`);
-        navigate('/tasks')
+      console.log('🔧 DEBUG: 創建任務響應:', response.data);
+
+      if (response.data.success) {
+        alert(`任務創建成功！匹配了 ${response.data.data.video_pairs_count || 0} 個視頻對`);
+        navigate('/tasks');
       } else {
-        const error = await response.json()
-        alert(error.detail || 'Failed to create task');
+        alert(response.data.error || '創建任務失敗');
       }
-    } catch (error) {
-      console.error('Task creation error:', error);
+    } catch (error: any) {
+      console.error('❌ DEBUG: 創建任務錯誤:', error);
       alert('Network error: Unable to connect to server');
     } finally {
-      setLoading(false)
+      setCreating(false);
     }
-  }
+  };
 
   // Format file size
   const formatFileSize = (bytes: number): string => {
