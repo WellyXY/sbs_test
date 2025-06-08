@@ -20,19 +20,30 @@ const TaskListPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Load task list
+  // Load task list  
   const loadTasks = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/tasks/')
+      console.log('🔧 DEBUG: 載入任務列表...')
+      
+      const response = await fetch('https://sbstest-production.up.railway.app/api/tasks/')
+      console.log('🔧 DEBUG: API響應狀態:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
-        setTasks(data.tasks)
+        console.log('🔧 DEBUG: 任務數據:', data)
+        
+        if (data.success && data.data) {
+          setTasks(data.data)
+          console.log('✅ DEBUG: 成功載入', data.data.length, '個任務')
+        } else {
+          console.error('❌ DEBUG: API響應格式錯誤:', data)
+        }
       } else {
-        console.error('Failed to load tasks')
+        console.error('❌ DEBUG: API請求失敗:', response.status)
       }
     } catch (error) {
-      console.error('Task loading error:', error)
+      console.error('❌ DEBUG: 任務載入錯誤:', error)
     } finally {
       setLoading(false)
     }
@@ -40,23 +51,25 @@ const TaskListPage: React.FC = () => {
 
   // Delete task
   const deleteTask = async (taskId: string, taskName: string) => {
-    if (!confirm(`Are you sure you want to delete task "${taskName}"? This action cannot be undone.`)) return
+    if (!confirm(`確定要刪除任務 "${taskName}" 嗎？此操作不可撤銷。`)) return
 
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      console.log('🔧 DEBUG: 刪除任務:', taskId)
+      
+      const response = await fetch(`https://sbstest-production.up.railway.app/api/tasks/${taskId}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
         await loadTasks()
-        alert('Task deleted successfully')
+        alert('任務刪除成功')
       } else {
         const error = await response.json()
-        alert(error.detail || 'Delete failed')
+        alert(error.detail || '刪除失敗')
       }
     } catch (error) {
-      console.error('Task deletion error:', error)
-      alert('Delete failed')
+      console.error('❌ DEBUG: 任務刪除錯誤:', error)
+      alert('刪除失敗')
     }
   }
 
