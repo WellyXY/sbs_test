@@ -13,13 +13,11 @@ from contextlib import asynccontextmanager
 import time
 import json
 import shutil
-from urllib.parse import quote
 
 # 持久化存儲配置
 DATA_DIR = "data"
 FOLDERS_FILE = os.path.join(DATA_DIR, "folders.json")
 TASKS_FILE = os.path.join(DATA_DIR, "tasks.json")
-EVALUATIONS_FILE = os.path.join(DATA_DIR, "evaluations.json")
 
 def load_folders():
     """從文件載入資料夾數據"""
@@ -63,27 +61,6 @@ def save_tasks(tasks_data):
     except Exception as e:
         print(f"❌ 保存任務數據失敗: {e}")
 
-def load_evaluations():
-    """從文件載入評估數據"""
-    try:
-        if os.path.exists(EVALUATIONS_FILE):
-            with open(EVALUATIONS_FILE, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                print(f"✅ 載入了 {len(data)} 個評估")
-                return data
-    except Exception as e:
-        print(f"❌ 載入評估數據失敗: {e}")
-    return []
-
-def save_evaluations(evaluations_data):
-    """保存評估數據到文件"""
-    try:
-        with open(EVALUATIONS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(evaluations_data, f, ensure_ascii=False, indent=2)
-        print(f"✅ 保存了 {len(evaluations_data)} 個評估")
-    except Exception as e:
-        print(f"❌ 保存評估數據失敗: {e}")
-
 # 修復導入問題，先註釋掉可能有問題的導入
 # from database.database import engine, SessionLocal, Base
 # from api import folders
@@ -105,12 +82,11 @@ async def lifespan(app: FastAPI):
     print("✅ 文件目錄初始化完成")
     
     # 啟動時載入持久化數據
-    global folders_storage, tasks_storage, evaluations_storage
+    global folders_storage, tasks_storage
     folders_storage = load_folders()
     tasks_storage = load_tasks()
-    evaluations_storage = load_evaluations()
 
-    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務，{len(evaluations_storage)} 個評估")
+    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務")
     
     yield
     
@@ -173,7 +149,6 @@ async def api_health_check():
 # 持久化存儲會在startup時初始化
 folders_storage = []
 tasks_storage = []
-evaluations_storage = []
 
 # 簡單的folders API端點用於測試
 @app.get("/api/folders/")
@@ -344,65 +319,88 @@ async def get_supported_formats():
         "message": "支持的視頻格式列表"
     }
 
-# 初始化測試數據端點（僅創建空的資料夾結構）
+# 初始化測試數據端點（臨時解決方案）
 @app.post("/api/init-test-data")
 async def init_test_data():
-    """初始化測試數據（僅創建空的資料夾結構）"""
+    """初始化一些測試數據"""
+    global folders_storage, tasks_storage
     
-    # 清空現有數據
-    folders_storage.clear()
-    tasks_storage.clear()
-    evaluations_storage.clear()
+    # 添加你之前的真實資料夾和測試資料夾
+    test_folders = [
+        {
+            "name": "0606dmd",
+            "path": "/uploads/0606dmd",
+            "video_count": 1,
+            "total_size": 1905260,
+            "created_time": int(time.time())
+        },
+        {
+            "name": "shanghaidmd",
+            "path": "/uploads/shanghaidmd",
+            "video_count": 1,
+            "total_size": 1863688,
+            "created_time": int(time.time())
+        },
+        {
+            "name": "test_folder_a",
+            "path": "/uploads/test_folder_a",
+            "video_count": 3,
+            "total_size": 50000000,
+            "created_time": int(time.time())
+        },
+        {
+            "name": "test_folder_b", 
+            "path": "/uploads/test_folder_b",
+            "video_count": 3,
+            "total_size": 48000000,
+            "created_time": int(time.time())
+        }
+    ]
     
-    # 只創建基本的空資料夾（用戶可以自己上傳文件）
+    # 添加你之前的真實任務和測試任務
+    test_tasks = [
+        {
+            "id": "task_1",
+            "name": "dmd compare",
+            "description": "",
+            "folder_a": "0606dmd",
+            "folder_b": "shanghaidmd",
+            "is_blind": True,
+            "video_pairs_count": 1,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0
+        },
+        {
+            "id": "task_test_1",
+            "name": "測試對比任務",
+            "description": "這是一個測試任務",
+            "folder_a": "test_folder_a",
+            "folder_b": "test_folder_b",
+            "is_blind": True,
+            "video_pairs_count": 3,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0
+        }
+    ]
     
-    # 保存到文件
+    folders_storage.extend(test_folders)
+    tasks_storage.extend(test_tasks)
+    
+    # 保存到文件（雖然會丟失，但可以測試功能）
     save_folders(folders_storage)
     save_tasks(tasks_storage)
-    save_evaluations(evaluations_storage)
     
     return {
         "success": True,
-        "message": "數據已清空，請自行創建資料夾並上傳視頻文件",
+        "message": f"數據初始化完成：{len(test_folders)}個資料夾（包含你之前的0606dmd、shanghaidmd），{len(test_tasks)}個任務（包含dmd compare）",
         "data": {
             "folders": len(folders_storage),
-            "tasks": len(tasks_storage),
-            "evaluations": len(evaluations_storage)
+            "tasks": len(tasks_storage)
         }
-    }
-
-@app.post("/api/create-demo-task")
-async def create_demo_task():
-    """創建外部視頻演示任務"""
-    
-    # 檢查是否已存在演示任務
-    demo_task = next((t for t in tasks_storage if t["id"] == "task_demo"), None)
-    if demo_task:
-        return {"success": True, "message": "演示任務已存在", "data": demo_task}
-    
-    # 創建演示任務
-    demo_task = {
-        "id": "task_demo",
-        "name": "演示視頻對比（外部鏈接）",
-        "description": "使用外部視頻鏈接進行演示，可以正常播放",
-        "folder_a": "demo_external",
-        "folder_b": "demo_external",
-        "is_blind": True,
-        "video_pairs_count": 1,
-        "status": "active",
-        "created_time": int(time.time()),
-        "total_evaluations": 0,
-        "completed_evaluations": 0,
-        "use_external_videos": True
-    }
-    
-    tasks_storage.append(demo_task)
-    save_tasks(tasks_storage)
-    
-    return {
-        "success": True,
-        "message": "演示任務創建成功",
-        "data": demo_task
     }
 
 # Tasks API端點
@@ -417,91 +415,18 @@ async def get_task(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail=f"任務 '{task_id}' 不存在")
     
-    # 特殊處理：外部視頻演示任務
-    if task_id == "task_demo":
-        video_pairs = [
-            {
-                "id": "task_demo_pair_1",
-                "task_id": "task_demo",
-                "video_a_path": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-                "video_b_path": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-                "video_a_name": "Big Buck Bunny",
-                "video_b_name": "Elephants Dream",
-                "is_evaluated": False
-            }
-        ]
-        task_with_pairs = {**task, "video_pairs": video_pairs}
-        return {"success": True, "data": task_with_pairs, "message": f"任務 '{task['name']}' 詳情（外部視頻）"}
-    
-    # 獲取實際的文件列表
-    folder_a_path = f"uploads/{task['folder_a']}"
-    folder_b_path = f"uploads/{task['folder_b']}"
-    
-    print(f"🔧 DEBUG: 檢查資料夾路徑:")
-    print(f"   資料夾A: {folder_a_path} (存在: {os.path.exists(folder_a_path)})")
-    print(f"   資料夾B: {folder_b_path} (存在: {os.path.exists(folder_b_path)})")
-    print(f"   當前工作目錄: {os.getcwd()}")
-    
+    # 生成模擬的視頻對數據
     video_pairs = []
-    
-    try:
-        # 讀取資料夾A的文件
-        files_a = []
-        files_b = []
-        
-        if os.path.exists(folder_a_path):
-            all_files_a = os.listdir(folder_a_path)
-            files_a = [f for f in all_files_a if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-            print(f"🔧 DEBUG: 資料夾A所有文件: {all_files_a}")
-            print(f"🔧 DEBUG: 資料夾A視頻文件: {files_a}")
-        else:
-            print(f"❌ DEBUG: 資料夾A不存在: {folder_a_path}")
-        
-        if os.path.exists(folder_b_path):
-            all_files_b = os.listdir(folder_b_path)
-            files_b = [f for f in all_files_b if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-            print(f"🔧 DEBUG: 資料夾B所有文件: {all_files_b}")
-            print(f"🔧 DEBUG: 資料夾B視頻文件: {files_b}")
-        else:
-            print(f"❌ DEBUG: 資料夾B不存在: {folder_b_path}")
-        
-        # 生成視頻對 - 按文件名配對或順序配對
-        if files_a and files_b:
-            for i, (file_a, file_b) in enumerate(zip(files_a, files_b)):
-                # URL編碼文件路徑
-                encoded_path_a = f"uploads/{task['folder_a']}/{quote(file_a)}"
-                encoded_path_b = f"uploads/{task['folder_b']}/{quote(file_b)}"
-                
-                video_pairs.append({
-                    "id": f"{task_id}_pair_{i+1}",
-                    "task_id": task_id,
-                    "video_a_path": encoded_path_a,
-                    "video_b_path": encoded_path_b,
-                    "video_a_name": file_a,
-                    "video_b_name": file_b,
-                    "is_evaluated": False
-                })
-            
-            print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對")
-            for pair in video_pairs:
-                print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
-        else:
-            print(f"❌ DEBUG: 沒有找到視頻文件，使用模擬數據")
-            raise Exception("沒有找到視頻文件")
-            
-    except Exception as e:
-        print(f"❌ 讀取視頻文件錯誤: {e}")
-        # 如果讀取失敗，仍使用模擬數據
-        for i in range(task["video_pairs_count"]):
-            video_pairs.append({
-                "id": f"{task_id}_pair_{i+1}",
-                "task_id": task_id,
-                "video_a_path": f"uploads/{task['folder_a']}/video_{i+1}.mp4",
-                "video_b_path": f"uploads/{task['folder_b']}/video_{i+1}.mp4", 
-                "video_a_name": f"video_{i+1}.mp4",
-                "video_b_name": f"video_{i+1}.mp4",
-                "is_evaluated": False
-            })
+    for i in range(task["video_pairs_count"]):
+        video_pairs.append({
+            "id": f"{task_id}_pair_{i+1}",
+            "task_id": task_id,
+            "video_a_path": f"/uploads/{task['folder_a']}/video_{i+1}.mp4",
+            "video_b_path": f"/uploads/{task['folder_b']}/video_{i+1}.mp4", 
+            "video_a_name": f"video_{i+1}.mp4",
+            "video_b_name": f"video_{i+1}.mp4",
+            "is_evaluated": False
+        })
     
     # 添加視頻對到任務數據
     task_with_pairs = {**task, "video_pairs": video_pairs}
@@ -561,55 +486,6 @@ async def create_task(data: dict):
         "data": new_task,
         "message": f"任務 '{task_name}' 創建成功"
     }
-
-# Evaluations API端點
-@app.get("/api/evaluations/")
-async def get_evaluations():
-    """獲取所有評估"""
-    return {"success": True, "data": evaluations_storage, "message": "評估列表"}
-
-@app.post("/api/evaluations/")
-async def create_evaluation(data: dict):
-    """創建新的評估"""
-    video_pair_id = data.get("video_pair_id", "")
-    choice = data.get("choice", "")
-    is_blind = data.get("is_blind", True)
-    
-    if not video_pair_id:
-        return {"success": False, "error": "視頻對ID不能為空"}
-    
-    if choice not in ["A", "B", "tie"]:
-        return {"success": False, "error": "選擇必須是A、B或tie"}
-    
-    # 創建評估對象
-    new_evaluation = {
-        "id": f"eval_{len(evaluations_storage) + 1}",
-        "video_pair_id": video_pair_id,
-        "choice": choice,
-        "is_blind": is_blind,
-        "created_time": int(time.time()),
-        "user_agent": "web_client"
-    }
-    
-    evaluations_storage.append(new_evaluation)
-    save_evaluations(evaluations_storage)  # 持久化保存
-    
-    print(f"✅ DEBUG: 收到評估 - 視頻對: {video_pair_id}, 選擇: {choice}")
-    
-    return {
-        "success": True,
-        "data": new_evaluation,
-        "message": f"評估提交成功"
-    }
-
-@app.get("/api/evaluations/{video_pair_id}")
-async def get_evaluation_by_pair(video_pair_id: str):
-    """根據視頻對ID獲取評估"""
-    evaluation = next((e for e in evaluations_storage if e["video_pair_id"] == video_pair_id), None)
-    if not evaluation:
-        raise HTTPException(status_code=404, detail=f"未找到視頻對 '{video_pair_id}' 的評估")
-    
-    return {"success": True, "data": evaluation, "message": "評估詳情"}
 
 # 錯誤處理器
 @app.exception_handler(404)

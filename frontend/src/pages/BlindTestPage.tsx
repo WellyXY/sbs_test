@@ -230,7 +230,10 @@ const BlindTestPage: React.FC = () => {
 
   // Get video URL
   const getVideoUrl = (path: string) => {
-    return `http://localhost:8000/${path}`
+    const fullUrl = `https://sbstest-production.up.railway.app/${path}`
+    console.log('🔧 DEBUG: getVideoUrl - 輸入路徑:', path)
+    console.log('🔧 DEBUG: getVideoUrl - 完整URL:', fullUrl)
+    return fullUrl
   }
 
   useEffect(() => {
