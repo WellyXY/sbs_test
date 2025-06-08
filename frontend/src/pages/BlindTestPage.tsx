@@ -65,22 +65,36 @@ const BlindTestPage: React.FC = () => {
     
     try {
       setLoading(true)
-      const response = await fetch(`/api/tasks/${taskId}`)
+      console.log('🔧 DEBUG: 載入任務數據，任務ID:', taskId)
+      
+      const response = await fetch(`https://sbstest-production.up.railway.app/api/tasks/${taskId}`)
+      console.log('🔧 DEBUG: 任務API響應狀態:', response.status)
       
       if (response.ok) {
-        const taskData = await response.json()
-        setTask(taskData)
+        const responseData = await response.json()
+        console.log('🔧 DEBUG: 任務響應:', responseData)
         
-        if (taskData.video_pairs && taskData.video_pairs.length > 0) {
-          setCurrentPair(taskData.video_pairs[0])
+        if (responseData.success && responseData.data) {
+          const taskData = responseData.data
+          console.log('🔧 DEBUG: 任務數據:', taskData)
+          setTask(taskData)
+          
+          if (taskData.video_pairs && taskData.video_pairs.length > 0) {
+            setCurrentPair(taskData.video_pairs[0])
+          }
+        } else {
+          console.error('❌ DEBUG: API響應格式錯誤:', responseData)
+          alert(responseData.error || '載入任務失敗')
+          navigate('/tasks')
         }
       } else {
-        alert('Failed to load task')
+        console.error('❌ DEBUG: 載入任務失敗:', response.status)
+        alert('載入任務失敗')
         navigate('/tasks')
       }
     } catch (error) {
-      console.error('Task loading error:', error)
-      alert('Network error')
+      console.error('❌ DEBUG: 任務載入錯誤:', error)
+      alert('網絡錯誤')
       navigate('/tasks')
     } finally {
       setLoading(false)
@@ -120,7 +134,7 @@ const BlindTestPage: React.FC = () => {
       setSubmitting(true)
       console.log('Submitting evaluation:', { video_pair_id: currentPair.id, choice: selectedChoice })
       
-      const response = await fetch('/api/evaluations/', {
+      const response = await fetch('https://sbstest-production.up.railway.app/api/evaluations/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
