@@ -319,6 +319,63 @@ async def get_supported_formats():
         "message": "支持的視頻格式列表"
     }
 
+# 初始化測試數據端點（臨時解決方案）
+@app.post("/api/init-test-data")
+async def init_test_data():
+    """初始化一些測試數據"""
+    global folders_storage, tasks_storage
+    
+    # 添加測試資料夾
+    test_folders = [
+        {
+            "name": "test_folder_a",
+            "path": "/uploads/test_folder_a",
+            "video_count": 3,
+            "total_size": 50000000,
+            "created_time": int(time.time())
+        },
+        {
+            "name": "test_folder_b", 
+            "path": "/uploads/test_folder_b",
+            "video_count": 3,
+            "total_size": 48000000,
+            "created_time": int(time.time())
+        }
+    ]
+    
+    # 添加測試任務
+    test_tasks = [
+        {
+            "id": "task_test_1",
+            "name": "測試對比任務",
+            "description": "這是一個測試任務",
+            "folder_a": "test_folder_a",
+            "folder_b": "test_folder_b",
+            "is_blind": True,
+            "video_pairs_count": 3,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0
+        }
+    ]
+    
+    folders_storage.extend(test_folders)
+    tasks_storage.extend(test_tasks)
+    
+    # 保存到文件（雖然會丟失，但可以測試功能）
+    save_folders(folders_storage)
+    save_tasks(tasks_storage)
+    
+    return {
+        "success": True,
+        "message": f"測試數據初始化完成：{len(test_folders)}個資料夾，{len(test_tasks)}個任務",
+        "data": {
+            "folders": len(folders_storage),
+            "tasks": len(tasks_storage)
+        }
+    }
+
 # Tasks API端點
 @app.get("/api/tasks/")
 async def get_tasks():
