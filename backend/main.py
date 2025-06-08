@@ -11,6 +11,55 @@ import uvicorn
 import os
 from contextlib import asynccontextmanager
 import time
+import json
+import shutil
+
+# 持久化存儲配置
+DATA_DIR = "data"
+FOLDERS_FILE = os.path.join(DATA_DIR, "folders.json")
+TASKS_FILE = os.path.join(DATA_DIR, "tasks.json")
+
+def load_folders():
+    """從文件載入資料夾數據"""
+    try:
+        if os.path.exists(FOLDERS_FILE):
+            with open(FOLDERS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print(f"✅ 載入了 {len(data)} 個資料夾")
+                return data
+    except Exception as e:
+        print(f"❌ 載入資料夾數據失敗: {e}")
+    return []
+
+def save_folders(folders_data):
+    """保存資料夾數據到文件"""
+    try:
+        with open(FOLDERS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(folders_data, f, ensure_ascii=False, indent=2)
+        print(f"✅ 保存了 {len(folders_data)} 個資料夾")
+    except Exception as e:
+        print(f"❌ 保存資料夾數據失敗: {e}")
+
+def load_tasks():
+    """從文件載入任務數據"""
+    try:
+        if os.path.exists(TASKS_FILE):
+            with open(TASKS_FILE, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                print(f"✅ 載入了 {len(data)} 個任務")
+                return data
+    except Exception as e:
+        print(f"❌ 載入任務數據失敗: {e}")
+    return []
+
+def save_tasks(tasks_data):
+    """保存任務數據到文件"""
+    try:
+        with open(TASKS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(tasks_data, f, ensure_ascii=False, indent=2)
+        print(f"✅ 保存了 {len(tasks_data)} 個任務")
+    except Exception as e:
+        print(f"❌ 保存任務數據失敗: {e}")
 
 # 修復導入問題，先註釋掉可能有問題的導入
 # from database.database import engine, SessionLocal, Base
@@ -26,10 +75,18 @@ async def lifespan(app: FastAPI):
     # Base.metadata.create_all(bind=engine)
     print("✅ 應用啟動完成")
     
-    # 創建上傳目錄
+    # 創建上傳目錄和數據目錄
+    os.makedirs(DATA_DIR, exist_ok=True)
     os.makedirs("uploads", exist_ok=True)
     os.makedirs("exports", exist_ok=True)
     print("✅ 文件目錄初始化完成")
+    
+    # 啟動時載入持久化數據
+    global folders_storage, tasks_storage
+    folders_storage = load_folders()
+    tasks_storage = load_tasks()
+
+    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務")
     
     yield
     
@@ -89,7 +146,7 @@ async def health_check():
 async def api_health_check():
     return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
 
-# 簡單的內存存儲（生產環境應該使用數據庫）
+# 持久化存儲會在startup時初始化
 folders_storage = []
 tasks_storage = []
 
@@ -108,7 +165,7 @@ async def create_folder(data: dict):
     if any(folder["name"] == folder_name for folder in folders_storage):
         return {"success": False, "error": f"資料夾 '{folder_name}' 已存在"}
     
-    # 創建資料夾對象並保存到內存
+    # 創建資料夾對象並保存到文件
     new_folder = {
         "name": folder_name,
         "path": f"/uploads/{folder_name}",
@@ -117,6 +174,7 @@ async def create_folder(data: dict):
         "created_time": int(time.time()) if 'time' in globals() else 1686123456
     }
     folders_storage.append(new_folder)
+    save_folders(folders_storage)  # 持久化保存
     
     return {
         "success": True, 
@@ -138,21 +196,28 @@ async def get_folder_files(folder_name: str):
         
         print(f"✅ DEBUG: 找到資料夾: {folder}")
         
-        # 模擬返回空文件列表（實際應該掃描文件系統）
-        mock_files = [
-            {
-                "filename": f"video_{i}.mp4",
-                "size": 10000000 + i * 1000000,
-                "path": f"/uploads/{folder_name}/video_{i}.mp4",
-                "created_time": int(time.time()) - i * 3600
-            }
-            for i in range(folder.get("video_count", 0))
-        ]
+        # 掃描資料夾中的真實文件
+        folder_path = f"uploads/{folder_name}"
+        files_list = []
+        
+        if os.path.exists(folder_path):
+            for filename in os.listdir(folder_path):
+                file_path = os.path.join(folder_path, filename)
+                if os.path.isfile(file_path):
+                    file_stat = os.stat(file_path)
+                    files_list.append({
+                        "filename": filename,
+                        "size": file_stat.st_size,
+                        "path": file_path,
+                        "created_time": int(file_stat.st_ctime)
+                    })
+        
+        print(f"✅ DEBUG: 掃描到 {len(files_list)} 個文件")
         
         return {
             "success": True, 
-            "data": mock_files, 
-            "message": f"資料夾 '{folder_name}' 的文件列表 ({len(mock_files)} 個文件)"
+            "data": files_list, 
+            "message": f"資料夾 '{folder_name}' 的文件列表 ({len(files_list)} 個文件)"
         }
     except Exception as e:
         print(f"❌ DEBUG: 獲取文件列表錯誤: {e}")
@@ -166,29 +231,53 @@ async def upload_files(folder_name: str, files: list = File(...)):
         raise HTTPException(status_code=404, detail="資料夾不存在")
     
     try:
-        # 模擬文件上傳成功（實際應該保存文件）
-        uploaded_count = len(files)
+        # 創建資料夾物理目錄
+        folder_path = f"uploads/{folder_name}"
+        os.makedirs(folder_path, exist_ok=True)
+        
+        uploaded_count = 0
         total_size = 0
+        uploaded_files = []
         
-        # 計算總大小
+        # 保存每個文件
         for file in files:
-            if hasattr(file, 'size') and file.size:
-                total_size += file.size
+            if file.filename:
+                file_path = os.path.join(folder_path, file.filename)
+                
+                # 讀取文件內容並保存
+                contents = await file.read()
+                with open(file_path, "wb") as f:
+                    f.write(contents)
+                
+                uploaded_count += 1
+                file_size = len(contents)
+                total_size += file_size
+                
+                uploaded_files.append({
+                    "filename": file.filename,
+                    "size": file_size,
+                    "path": file_path
+                })
+                
+                print(f"✅ 上傳文件: {file.filename} ({file_size} bytes)")
         
-        # 更新資料夾統計
+        # 更新資料夾統計並保存
         folder["video_count"] += uploaded_count
         folder["total_size"] += total_size
+        save_folders(folders_storage)  # 持久化保存
         
         return {
             "success": True, 
             "data": {
                 "uploaded_files": uploaded_count,
                 "folder_name": folder_name,
-                "total_size": total_size
+                "total_size": total_size,
+                "files": uploaded_files
             },
             "message": f"成功上傳 {uploaded_count} 個文件到資料夾 '{folder_name}'"
         }
     except Exception as e:
+        print(f"❌ 上傳錯誤: {e}")
         raise HTTPException(status_code=500, detail=f"上傳失敗: {str(e)}")
 
 @app.delete("/api/folders/{folder_name}")
@@ -199,13 +288,24 @@ async def delete_folder(folder_name: str):
     if not folder:
         return {"success": False, "error": "資料夾不存在"}
     
-    # 從存儲中移除
-    folders_storage = [f for f in folders_storage if f["name"] != folder_name]
-    
-    return {
-        "success": True,
-        "message": f"資料夾 '{folder_name}' 已刪除"
-    }
+    try:
+        # 刪除物理文件夾和文件
+        folder_path = f"uploads/{folder_name}"
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+            print(f"✅ 刪除物理資料夾: {folder_path}")
+        
+        # 從存儲中移除並保存
+        folders_storage = [f for f in folders_storage if f["name"] != folder_name]
+        save_folders(folders_storage)  # 持久化保存
+        
+        return {
+            "success": True,
+            "message": f"資料夾 '{folder_name}' 已刪除"
+        }
+    except Exception as e:
+        print(f"❌ 刪除資料夾錯誤: {e}")
+        return {"success": False, "error": f"刪除失敗: {str(e)}"}
 
 @app.get("/api/formats", summary="支持的視頻格式", description="獲取系統支持的視頻文件格式列表")
 async def get_supported_formats():
@@ -270,6 +370,7 @@ async def create_task(data: dict):
     }
     
     tasks_storage.append(new_task)
+    save_tasks(tasks_storage)  # 持久化保存
     
     return {
         "success": True,
