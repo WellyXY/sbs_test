@@ -138,19 +138,33 @@ async def upload_files(folder_name: str, files: list = File(...)):
     # 檢查資料夾是否存在
     folder = next((f for f in folders_storage if f["name"] == folder_name), None)
     if not folder:
-        return {"success": False, "error": "資料夾不存在"}
+        raise HTTPException(status_code=404, detail="資料夾不存在")
     
-    # 模擬文件上傳成功（實際應該保存文件）
-    uploaded_count = len(files) if isinstance(files, list) else 1
-    
-    return {
-        "success": True, 
-        "data": {
-            "uploaded_files": uploaded_count,
-            "folder_name": folder_name
-        },
-        "message": f"成功上傳 {uploaded_count} 個文件到資料夾 '{folder_name}'"
-    }
+    try:
+        # 模擬文件上傳成功（實際應該保存文件）
+        uploaded_count = len(files)
+        total_size = 0
+        
+        # 計算總大小
+        for file in files:
+            if hasattr(file, 'size') and file.size:
+                total_size += file.size
+        
+        # 更新資料夾統計
+        folder["video_count"] += uploaded_count
+        folder["total_size"] += total_size
+        
+        return {
+            "success": True, 
+            "data": {
+                "uploaded_files": uploaded_count,
+                "folder_name": folder_name,
+                "total_size": total_size
+            },
+            "message": f"成功上傳 {uploaded_count} 個文件到資料夾 '{folder_name}'"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"上傳失敗: {str(e)}")
 
 @app.delete("/api/folders/{folder_name}")
 async def delete_folder(folder_name: str):
