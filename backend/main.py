@@ -125,13 +125,37 @@ async def create_folder(data: dict):
 
 @app.get("/api/folders/{folder_name}/files")
 async def get_folder_files(folder_name: str):
-    # 檢查資料夾是否存在
-    folder = next((f for f in folders_storage if f["name"] == folder_name), None)
-    if not folder:
-        return {"success": False, "error": "資料夾不存在"}
-    
-    # 模擬返回空文件列表（實際應該掃描文件系統）
-    return {"success": True, "data": [], "message": f"資料夾 '{folder_name}' 的文件列表"}
+    try:
+        print(f"🔧 DEBUG: 查找資料夾文件，資料夾名稱: '{folder_name}'")
+        print(f"🔧 DEBUG: 當前存儲的資料夾: {[f['name'] for f in folders_storage]}")
+        
+        # 檢查資料夾是否存在
+        folder = next((f for f in folders_storage if f["name"] == folder_name), None)
+        if not folder:
+            print(f"❌ DEBUG: 找不到資料夾 '{folder_name}'")
+            return {"success": False, "error": f"資料夾 '{folder_name}' 不存在"}
+        
+        print(f"✅ DEBUG: 找到資料夾: {folder}")
+        
+        # 模擬返回空文件列表（實際應該掃描文件系統）
+        mock_files = [
+            {
+                "filename": f"video_{i}.mp4",
+                "size": 10000000 + i * 1000000,
+                "path": f"/uploads/{folder_name}/video_{i}.mp4",
+                "created_time": int(time.time()) - i * 3600
+            }
+            for i in range(folder.get("video_count", 0))
+        ]
+        
+        return {
+            "success": True, 
+            "data": mock_files, 
+            "message": f"資料夾 '{folder_name}' 的文件列表 ({len(mock_files)} 個文件)"
+        }
+    except Exception as e:
+        print(f"❌ DEBUG: 獲取文件列表錯誤: {e}")
+        return {"success": False, "error": f"獲取文件列表失敗: {str(e)}"}
 
 @app.post("/api/folders/{folder_name}/upload")
 async def upload_files(folder_name: str, files: list = File(...)):
