@@ -1,8 +1,0 @@
-[phases.install]
-cmd = "pip install -r requirements.txt"
-
-[phases.start]
-cmd = "./start.sh"
-
-[variables]
-PYTHON_VERSION = "3.9" 

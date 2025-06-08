@@ -139,12 +139,19 @@ async def global_exception_handler(request, exc):
 
 if __name__ == "__main__":
     print("🚀 正在啟動 Side-by-Side 視頻盲測服務...")
-    print("📖 API 文檔: http://localhost:8000/api/docs")
-    print("🎯 前端地址: http://localhost:3000")
     
     # 從環境變數獲取端口，預設為8000
-    port = int(os.environ.get("PORT", 8000))
-    print(f"🔧 使用端口: {port}")
+    try:
+        port = int(os.environ.get("PORT", "8000"))
+        print(f"🔧 使用端口: {port}")
+        print(f"🔧 PORT環境變數: {os.environ.get('PORT', '未設置')}")
+    except (ValueError, TypeError) as e:
+        print(f"❌ PORT環境變數錯誤: {e}")
+        port = 8000
+        print(f"🔧 使用預設端口: {port}")
+    
+    print(f"📖 API 文檔: http://localhost:{port}/api/docs")
+    print("🎯 前端地址: http://localhost:3000")
     
     uvicorn.run(
         "main:app",
