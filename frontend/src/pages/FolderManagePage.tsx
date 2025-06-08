@@ -120,17 +120,29 @@ const FolderManagePage: React.FC = () => {
     try {
       setUploading(true);
       console.log('🔧 DEBUG: 開始上傳文件到資料夾:', selectedFolder);
+      console.log('🔧 DEBUG: 文件數量:', files.length);
       
+      // 檢查文件大小
+      const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+      console.log('🔧 DEBUG: 總文件大小:', (totalSize / 1024 / 1024).toFixed(2), 'MB');
+      
+      if (totalSize > 100 * 1024 * 1024) { // 100MB限制
+        alert('文件總大小超過100MB，請選擇較小的文件');
+        return;
+      }
+
       const formData = new FormData();
       for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
-        console.log('🔧 DEBUG: 添加文件:', files[i].name);
+        console.log('🔧 DEBUG: 添加文件:', files[i].name, '大小:', (files[i].size / 1024 / 1024).toFixed(2), 'MB');
       }
 
+      // 降低超時時間，避免SSL錯誤
       const response = await api.post(`/api/folders/${selectedFolder}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 10000, // 10秒超時
       });
 
       console.log('🔧 DEBUG: 上傳響應:', response.data);
@@ -142,9 +154,17 @@ const FolderManagePage: React.FC = () => {
       } else {
         alert(response.data.error || '上傳失敗');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ DEBUG: 上傳錯誤:', error);
-      alert('上傳失敗，請檢查網絡連接');
+      
+      // 針對不同錯誤提供不同的提示
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('SSL')) {
+        alert('網絡連接錯誤，可能是文件太大或網絡不穩定。請嘗試：\n1. 選擇較小的文件\n2. 檢查網絡連接\n3. 稍後重試');
+      } else if (error.code === 'ECONNABORTED') {
+        alert('上傳超時，請選擇較小的文件或檢查網絡連接');
+      } else {
+        alert('上傳失敗：' + (error.response?.data?.message || error.message || '未知錯誤'));
+      }
     } finally {
       setUploading(false);
     }
@@ -298,22 +318,46 @@ const FolderManagePage: React.FC = () => {
                 </h2>
                 {selectedFolder && (
                   <div className="flex space-x-2">
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                    >
+                      <CloudArrowUpIcon className="h-4 w-4 mr-2" />
+                      {uploading ? '上傳中...' : '上傳視頻'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          // 模擬上傳成功
+                          const folder = folders.find(f => f.name === selectedFolder);
+                          if (folder) {
+                            folder.video_count += 3; // 假設上傳了3個文件
+                            folder.total_size += 50000000; // 假設50MB
+                            setFolders([...folders]);
+                            await loadFolderFiles(selectedFolder);
+                            alert('模擬上傳成功！添加了3個測試文件');
+                          }
+                        } catch (error) {
+                          console.error('模擬上傳錯誤:', error);
+                        }
+                      }}
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                      📝 測試上傳
+                    </button>
                     <input
                       ref={fileInputRef}
                       type="file"
                       multiple
                       accept="video/*"
-                      onChange={(e) => e.target.files && uploadFiles(e.target.files)}
                       className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          uploadFiles(e.target.files);
+                        }
+                      }}
                     />
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={uploading}
-                      className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
-                    >
-                      <CloudArrowUpIcon className="h-4 w-4 mr-1" />
-                      {uploading ? '上傳中...' : '上傳視頻'}
-                    </button>
                   </div>
                 )}
               </div>
