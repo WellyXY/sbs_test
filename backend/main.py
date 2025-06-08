@@ -497,114 +497,81 @@ async def get_task(task_id: str):
             print(f"🔧 DEBUG: 資料夾A文件映射: {files_a_map}")
             print(f"🔧 DEBUG: 資料夾B文件映射: {files_b_map}")
             
-            # 找出兩個資料夾都有的視頻名稱
+            # 嘗試先找出兩個資料夾都有的視頻名稱（基於基礎名稱）
             common_names = set(files_a_map.keys()) & set(files_b_map.keys())
             common_names = sorted(list(common_names))  # 排序確保一致性
             
             print(f"🔧 DEBUG: 共同視頻名稱: {common_names}")
             
-            if not common_names:
-                print(f"❌ DEBUG: 沒有找到兩個資料夾都存在的相同名稱視頻")
-                raise Exception("沒有找到兩個資料夾都存在的相同名稱視頻")
-            
-            # 只為共同存在的視頻創建配對
-            for i, base_name in enumerate(common_names):
-                file_a = files_a_map[base_name]
-                file_b = files_b_map[base_name]
+            if common_names:
+                # 有相同基礎名稱的視頻，按名稱配對
+                print(f"✅ DEBUG: 找到 {len(common_names)} 個相同基礎名稱的視頻，使用1:1配對")
+                for i, base_name in enumerate(common_names):
+                    file_a = files_a_map[base_name]
+                    file_b = files_b_map[base_name]
+                    
+                    video_pairs.append({
+                        "id": f"{task_id}_pair_{i+1}",
+                        "task_id": task_id,
+                        "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
+                        "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                        "video_a_name": file_a,
+                        "video_b_name": file_b,
+                        "is_evaluated": False
+                    })
                 
-                # URL編碼文件路徑
-                encoded_path_a = f"uploads/{task['folder_a']}/{quote(file_a)}"
-                encoded_path_b = f"uploads/{task['folder_b']}/{quote(file_b)}"
+                print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (基礎名稱配對)")
+                for pair in video_pairs:
+                    name_a = os.path.splitext(pair['video_a_name'])[0]
+                    name_b = os.path.splitext(pair['video_b_name'])[0]
+                    print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']} (基礎名稱: {name_a})")
                 
-                video_pairs.append({
-                    "id": f"{task_id}_pair_{i+1}",
-                    "task_id": task_id,
-                    "video_a_path": encoded_path_a,
-                    "video_b_path": encoded_path_b,
-                    "video_a_name": file_a,
-                    "video_b_name": file_b,
-                    "is_evaluated": False
-                })
-            
-            print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (1:1配對)")
-            for pair in video_pairs:
-                name_a = os.path.splitext(pair['video_a_name'])[0]
-                name_b = os.path.splitext(pair['video_b_name'])[0]
-                print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']} (基礎名稱: {name_a})")
-            
-            # 報告未配對的文件
-            unmatched_a = set(files_a_map.keys()) - common_names
-            unmatched_b = set(files_b_map.keys()) - common_names
-            
-            if unmatched_a:
-                print(f"📋 DEBUG: 資料夾A中未配對的文件: {[files_a_map[name] for name in unmatched_a]}")
-            if unmatched_b:
-                print(f"📋 DEBUG: 資料夾B中未配對的文件: {[files_b_map[name] for name in unmatched_b]}")
+                # 報告未配對的文件
+                unmatched_a = set(files_a_map.keys()) - common_names
+                unmatched_b = set(files_b_map.keys()) - common_names
+                
+                if unmatched_a:
+                    print(f"📋 DEBUG: 資料夾A中未配對的文件: {[files_a_map[name] for name in unmatched_a]}")
+                if unmatched_b:
+                    print(f"📋 DEBUG: 資料夾B中未配對的文件: {[files_b_map[name] for name in unmatched_b]}")
+            else:
+                # 沒有相同基礎名稱，改為按順序配對
+                print(f"🔄 DEBUG: 沒有找到相同基礎名稱的視頻，改為按順序配對")
+                pair_count = min(len(files_a), len(files_b))
+                
+                for i in range(pair_count):
+                    file_a = files_a[i]
+                    file_b = files_b[i]
+                    
+                    video_pairs.append({
+                        "id": f"{task_id}_pair_{i+1}",
+                        "task_id": task_id,
+                        "video_a_path": f"uploads/{task['folder_a']}/{file_a}",
+                        "video_b_path": f"uploads/{task['folder_b']}/{file_b}",
+                        "video_a_name": file_a,
+                        "video_b_name": file_b,
+                        "is_evaluated": False
+                    })
+                
+                print(f"✅ DEBUG: 任務 {task_id} 生成了 {len(video_pairs)} 個視頻對 (順序配對)")
+                for pair in video_pairs:
+                    print(f"   對 {pair['id']}: {pair['video_a_name']} vs {pair['video_b_name']}")
+                
+                # 報告未配對的文件
+                if len(files_a) > pair_count:
+                    unmatched_a = files_a[pair_count:]
+                    print(f"📋 DEBUG: 資料夾A中未配對的文件: {unmatched_a}")
+                if len(files_b) > pair_count:
+                    unmatched_b = files_b[pair_count:]
+                    print(f"📋 DEBUG: 資料夾B中未配對的文件: {unmatched_b}")
                 
         else:
-            print(f"❌ DEBUG: 沒有找到視頻文件，使用模擬數據")
+            print(f"❌ DEBUG: 沒有找到視頻文件")
             raise Exception("沒有找到視頻文件")
             
     except Exception as e:
         print(f"❌ 讀取視頻文件錯誤: {e}")
-        # 如果讀取失敗，試圖重新掃描文件夾
-        try:
-            print(f"🔧 DEBUG: 嘗試重新掃描文件夾...")
-            folder_a_path = f"uploads/{task['folder_a']}"
-            folder_b_path = f"uploads/{task['folder_b']}"
-            
-            files_a = []
-            files_b = []
-            
-            if os.path.exists(folder_a_path):
-                files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-                files_a.sort()
-                
-            if os.path.exists(folder_b_path):
-                files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-                files_b.sort()
-                
-            print(f"🔧 DEBUG: 重新掃描 - 資料夾A: {files_a}")
-            print(f"🔧 DEBUG: 重新掃描 - 資料夾B: {files_b}")
-            
-            # 如果有文件，創建配對
-            if files_a and files_b:
-                # 建立文件名映射（去除擴展名）
-                files_a_map = {os.path.splitext(f)[0]: f for f in files_a}
-                files_b_map = {os.path.splitext(f)[0]: f for f in files_b}
-                
-                # 找出共同名稱
-                common_names = sorted(list(set(files_a_map.keys()) & set(files_b_map.keys())))
-                
-                if common_names:
-                    for i, base_name in enumerate(common_names):
-                        file_a = files_a_map[base_name]
-                        file_b = files_b_map[base_name]
-                        
-                        # URL編碼文件路徑
-                        encoded_path_a = f"uploads/{task['folder_a']}/{quote(file_a)}"
-                        encoded_path_b = f"uploads/{task['folder_b']}/{quote(file_b)}"
-                        
-                        video_pairs.append({
-                            "id": f"{task_id}_pair_{i+1}",
-                            "task_id": task_id,
-                            "video_a_path": encoded_path_a,
-                            "video_b_path": encoded_path_b,
-                            "video_a_name": file_a,
-                            "video_b_name": file_b,
-                            "is_evaluated": False
-                        })
-                    
-                    print(f"✅ DEBUG: 重新掃描成功，創建了 {len(video_pairs)} 個視頻對")
-                else:
-                    print(f"❌ DEBUG: 重新掃描後仍未找到匹配的視頻")
-            else:
-                print(f"❌ DEBUG: 重新掃描後未找到視頻文件")
-                
-        except Exception as rescan_error:
-            print(f"❌ DEBUG: 重新掃描也失敗: {rescan_error}")
-            # 最後的回退：如果一切都失敗了，返回錯誤而不是創建假數據
-            pass
+        print(f"❌ 任務 {task_id} 無法生成有效的視頻對，請檢查資料夾中是否有視頻文件")
     
     # 添加視頻對到任務數據
     task_with_pairs = {**task, "video_pairs": video_pairs}
@@ -638,32 +605,8 @@ async def create_task(data: dict):
     if not folder_b_obj:
         return {"success": False, "error": f"資料夾 '{folder_b}' 不存在"}
     
-    # 計算實際的視頻對數量
-    try:
-        folder_a_path = f"uploads/{folder_a}"
-        folder_b_path = f"uploads/{folder_b}"
-        
-        files_a = []
-        files_b = []
-        
-        if os.path.exists(folder_a_path):
-            files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-            
-        if os.path.exists(folder_b_path):
-            files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v', '.3gp', '.ts'))]
-        
-        # 建立文件名映射並找出共同名稱
-        files_a_map = {os.path.splitext(f)[0]: f for f in files_a}
-        files_b_map = {os.path.splitext(f)[0]: f for f in files_b}
-        common_names = set(files_a_map.keys()) & set(files_b_map.keys())
-        
-        video_pairs_count = len(common_names)
-        print(f"🔧 DEBUG: 任務創建 - 實際視頻對數量: {video_pairs_count}")
-        
-    except Exception as e:
-        print(f"❌ DEBUG: 計算視頻對數量失敗: {e}")
-        # 回退到最小文件數量
-        video_pairs_count = min(folder_a_obj["video_count"], folder_b_obj["video_count"])
+    # 計算視頻對數量（模擬）
+    video_pairs_count = min(folder_a_obj["video_count"], folder_b_obj["video_count"])
     
     # 創建任務對象
     new_task = {
