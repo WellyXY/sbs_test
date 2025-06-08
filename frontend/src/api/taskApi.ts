@@ -142,13 +142,13 @@ export const evaluationApi = {
 export const systemApi = {
   // 檢查系統狀態
   async getHealth(): Promise<{ status: string; version: string }> {
-    const response = await api.get<ApiResponse<{ status: string; version: string }>>('/health')
-    return response.data.data
+    const response = await api.get<{ status: string; version: string }>('/health')
+    return response.data
   },
 
   // 獲取支持的視頻格式
   async getSupportedFormats(): Promise<string[]> {
-    const response = await api.get<ApiResponse<string[]>>('/formats')
+    const response = await api.get<ApiResponse<string[]>>('/api/formats')
     return response.data.data
   },
 } 

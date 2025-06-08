@@ -88,6 +88,28 @@ async def health_check():
 async def api_health_check():
     return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
 
+# 簡單的folders API端點用於測試
+@app.get("/api/folders/")
+async def get_folders():
+    return {"success": True, "data": [], "message": "資料夾列表"}
+
+@app.post("/api/folders/create")
+async def create_folder(data: dict):
+    folder_name = data.get("name", "")
+    if not folder_name:
+        return {"success": False, "error": "資料夾名稱不能為空"}
+    
+    # 這裡只是模擬創建，實際上不做任何操作
+    return {
+        "success": True, 
+        "data": {
+            "name": folder_name,
+            "path": f"/uploads/{folder_name}",
+            "created": True
+        },
+        "message": f"資料夾 '{folder_name}' 創建成功"
+    }
+
 
 @app.get("/api/formats", summary="支持的視頻格式", description="獲取系統支持的視頻文件格式列表")
 async def get_supported_formats():

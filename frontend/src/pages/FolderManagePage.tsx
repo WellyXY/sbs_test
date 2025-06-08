@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { systemApi } from '../api/taskApi';
+import axios from 'axios';
 // Debug: 檢查API連接
 console.log('🔧 DEBUG: FolderManagePage 載入，準備測試API連接...');
+
+// 使用與taskApi相同的配置
+const API_BASE_URL = 'https://sbstest-production.up.railway.app';
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // 測試API連接
 systemApi.getHealth()
@@ -53,15 +64,15 @@ const FolderManagePage: React.FC = () => {
       setLoading(true);
       console.log('🔧 DEBUG: 開始載入資料夾列表...');
       
-      // 使用系統API先測試連接
-      const healthResult = await systemApi.getHealth();
-      console.log('🔧 DEBUG: 健康檢查結果:', healthResult);
+      const response = await api.get('/api/folders/');
+      console.log('🔧 DEBUG: 資料夾API響應:', response.data);
       
-      // 這裡應該調用folders API，但目前先用健康檢查測試
-      // const response = await fetch('/api/folders/');
-      // 臨時模擬數據
-      setFolders([]);
-      console.log('🔧 DEBUG: 資料夾列表載入完成');
+      if (response.data.success) {
+        setFolders(response.data.data);
+        console.log('🔧 DEBUG: 資料夾列表載入完成');
+      } else {
+        console.error('❌ DEBUG: 載入資料夾失敗:', response.data.error);
+      }
       
     } catch (error) {
       console.error('❌ DEBUG: 資料夾載入錯誤:', error);
@@ -79,12 +90,20 @@ const FolderManagePage: React.FC = () => {
       setCreating(true);
       console.log('🔧 DEBUG: 創建資料夾:', newFolderName);
       
-      // 先測試API連接
-      const healthResult = await systemApi.getHealth();
-      console.log('🔧 DEBUG: API連接正常:', healthResult);
+      const response = await api.post('/api/folders/create', {
+        name: newFolderName.trim()
+      });
       
-      // 顯示連接成功信息
-      alert(`API連接成功！服務器狀態: ${healthResult.status}, 版本: ${healthResult.version}`);
+      console.log('🔧 DEBUG: 創建資料夾響應:', response.data);
+      
+      if (response.data.success) {
+        setNewFolderName('');
+        setShowCreateModal(false);
+        alert(response.data.message || '資料夾創建成功！');
+        await loadFolders();
+      } else {
+        alert(response.data.error || '創建失敗');
+      }
       
     } catch (error) {
       console.error('❌ DEBUG: 創建資料夾錯誤:', error);
