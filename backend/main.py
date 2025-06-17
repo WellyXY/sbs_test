@@ -825,9 +825,11 @@ async def get_task_detailed_results(task_id: str):
         
         # 獲取該任務的所有評估
         task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
+        print(f"🔧 DEBUG: 找到 {len(task_evaluations)} 個評估記錄")
         
         # 創建視頻對ID到評估的映射
         evaluation_map = {e["video_pair_id"]: e for e in task_evaluations}
+        print(f"🔧 DEBUG: 評估映射: {list(evaluation_map.keys())}")
         
         # 建立詳細結果列表
         detailed_results = []
@@ -862,7 +864,7 @@ async def get_task_detailed_results(task_id: str):
                 "user_choice": evaluation["choice"] if evaluation else None,
                 "actual_chosen_folder": actual_chosen_folder,
                 "evaluation_id": evaluation["id"] if evaluation else None,
-                "evaluation_timestamp": evaluation["timestamp"] if evaluation else None,
+                "evaluation_timestamp": evaluation.get("created_time") if evaluation else None,
                 "is_evaluated": evaluation is not None
             }
             

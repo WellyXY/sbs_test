@@ -347,7 +347,7 @@ const ResultsPage: React.FC = () => {
           onClick={() => navigate(`/tasks/${taskId}/review`)}
           className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
-          查看結果
+          Check your result
         </button>
         <button
           onClick={() => navigate(`/tasks/${taskId}/test`)}
