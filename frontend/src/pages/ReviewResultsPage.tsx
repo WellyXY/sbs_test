@@ -164,13 +164,21 @@ const ReviewResultsPage: React.FC = () => {
       return { text: 'Tie (No preference)', color: 'text-yellow-600' }
     }
 
-    const choiceText = result.user_choice === 'A' ? `Left (${result.left_folder})` : `Right (${result.right_folder})`
-    
-    if (result.actual_chosen_folder === data?.folder_a) {
-      return { text: choiceText, color: 'text-blue-600' }
-    } else {
-      return { text: choiceText, color: 'text-green-600' }
+    if (result.user_choice === 'A') {
+      return { 
+        text: `Left (${result.left_folder})`, 
+        color: 'text-blue-600' 
+      }
     }
+
+    if (result.user_choice === 'B') {
+      return { 
+        text: `Right (${result.right_folder})`, 
+        color: 'text-green-600' 
+      }
+    }
+
+    return { text: 'Unknown', color: 'text-gray-500' }
   }
 
   useEffect(() => {

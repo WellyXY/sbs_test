@@ -677,6 +677,19 @@ async def get_task(task_id: str):
         print(f"❌ 讀取視頻文件錯誤: {e}")
         print(f"❌ 任務 {task_id} 無法生成有效的視頻對，請檢查資料夾中是否有視頻文件")
     
+    # 如果是第一次生成視頻對且有數據，保存到任務中
+    if video_pairs and "video_pairs" not in task:
+        print(f"✅ DEBUG: 首次生成視頻對，保存到任務數據中: {len(video_pairs)} 個視頻對")
+        # 更新任務數據，包含視頻對信息
+        for i, stored_task in enumerate(tasks_storage):
+            if stored_task["id"] == task_id:
+                tasks_storage[i]["video_pairs"] = video_pairs
+                save_tasks(tasks_storage)  # 持久化保存
+                break
+        
+        # 更新當前任務對象
+        task["video_pairs"] = video_pairs
+    
     # 添加視頻對到任務數據
     task_with_pairs = {**task, "video_pairs": video_pairs}
     
