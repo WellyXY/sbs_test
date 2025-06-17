@@ -63,6 +63,17 @@ const ReviewResultsPage: React.FC = () => {
       setLoading(true)
       console.log('🔧 DEBUG: 載入詳細結果，任務ID:', taskId)
       
+      // 先檢查評估數據
+      const evalResponse = await fetch(`https://sbstest-production.up.railway.app/api/evaluations/`)
+      if (evalResponse.ok) {
+        const evalResult = await evalResponse.json()
+        console.log('🔧 DEBUG: 所有評估數據:', evalResult)
+        
+        // 過濾出當前任務的評估
+        const taskEvaluations = evalResult.data.filter((e: any) => e.video_pair_id.startsWith(taskId))
+        console.log('🔧 DEBUG: 當前任務的評估:', taskEvaluations)
+      }
+      
       const response = await fetch(`https://sbstest-production.up.railway.app/api/tasks/${taskId}/detailed-results`)
       console.log('🔧 DEBUG: 詳細結果API響應狀態:', response.status)
       
