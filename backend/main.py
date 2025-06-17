@@ -172,6 +172,15 @@ async def health_check():
 async def api_health_check():
     return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
 
+@app.get("/api/test/upload/{folder_name}")
+async def test_upload_route(folder_name: str):
+    """測試上傳路由是否工作"""
+    return {
+        "message": f"Upload route test for folder: {folder_name}",
+        "available_folders": [f['name'] for f in folders_storage],
+        "folder_exists": any(f['name'] == folder_name for f in folders_storage)
+    }
+
 # 持久化存儲會在startup時初始化
 folders_storage = []
 tasks_storage = []
@@ -259,10 +268,15 @@ async def get_folder_files(folder_name: str):
 
 @app.post("/api/folders/{folder_name}/upload")
 async def upload_files(folder_name: str, files: list[UploadFile] = File(...)):
+    print(f"🔧 DEBUG: Upload request for folder: '{folder_name}'")
+    print(f"🔧 DEBUG: Available folders: {[f['name'] for f in folders_storage]}")
+    print(f"🔧 DEBUG: Number of files to upload: {len(files)}")
+    
     # 檢查資料夾是否存在
     folder = next((f for f in folders_storage if f["name"] == folder_name), None)
     if not folder:
-        raise HTTPException(status_code=404, detail="資料夾不存在")
+        print(f"❌ DEBUG: Folder '{folder_name}' not found in storage")
+        raise HTTPException(status_code=404, detail=f"資料夾 '{folder_name}' 不存在")
     
     try:
         # 創建資料夾物理目錄
