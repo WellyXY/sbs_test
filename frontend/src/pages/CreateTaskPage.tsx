@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 // 使用與taskApi相同的配置
-const API_BASE_URL = 'https://sbstest-production.up.railway.app';
+import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { API_BASE_URL, buildFileUrl } from '../config/api'
 
 interface VideoPair {
   id: string
@@ -67,8 +68,8 @@ const BlindTestPage: React.FC = () => {
       setLoading(true)
       console.log('🔧 DEBUG: 載入任務數據，任務ID:', taskId)
       
-      const response = await fetch(`https://sbstest-production.up.railway.app/api/tasks/${taskId}`)
-      console.log('🔧 DEBUG: 任務API響應狀態:', response.status)
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`)
+        console.log('🔧 DEBUG: 任務API響應狀態:', response.status)
       
       if (response.ok) {
         const result = await response.json()
@@ -139,7 +140,7 @@ const BlindTestPage: React.FC = () => {
       setSubmitting(true)
       console.log('Submitting evaluation:', { video_pair_id: currentPair.id, choice: selectedChoice })
       
-      const response = await fetch('https://sbstest-production.up.railway.app/api/evaluations/', {
+      const response = await fetch(`${API_BASE_URL}/api/evaluations/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -230,7 +231,7 @@ const BlindTestPage: React.FC = () => {
 
   // Get video URL
   const getVideoUrl = (path: string) => {
-    const fullUrl = `https://sbstest-production.up.railway.app/${path}`
+    const fullUrl = buildFileUrl(path)
     console.log('🔧 DEBUG: getVideoUrl - 輸入路徑:', path)
     console.log('🔧 DEBUG: getVideoUrl - 完整URL:', fullUrl)
     return fullUrl
@@ -239,7 +240,7 @@ const BlindTestPage: React.FC = () => {
   // 檢查文件是否存在
   const checkFileExists = async (path: string) => {
     try {
-      const response = await fetch(`https://sbstest-production.up.railway.app/api/debug/file-exists?path=${encodeURIComponent(path)}`)
+      const response = await fetch(`${API_BASE_URL}/api/debug/file-exists?path=${encodeURIComponent(path)}`)
       const result = await response.json()
       console.log('🔧 DEBUG: 文件檢查結果:', path, result)
       return result
