@@ -344,6 +344,12 @@ const ResultsPage: React.FC = () => {
       {/* Actions */}
       <div className="flex justify-center space-x-4">
         <button
+          onClick={() => navigate(`/tasks/${taskId}/review`)}
+          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          查看結果
+        </button>
+        <button
           onClick={() => navigate(`/tasks/${taskId}/test`)}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >

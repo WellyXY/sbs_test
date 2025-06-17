@@ -785,6 +785,89 @@ async def get_evaluation_by_pair(video_pair_id: str):
     
     return {"success": True, "data": evaluation, "message": "評估詳情"}
 
+@app.get("/api/tasks/{task_id}/detailed-results")
+async def get_task_detailed_results(task_id: str):
+    """獲取任務的詳細評估結果，用於回顧功能"""
+    # 檢查任務是否存在
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+    
+    # 獲取任務的完整數據，包括視頻對
+    try:
+        # 調用現有的 get_task 函數來獲取完整的任務數據
+        task_response = await get_task(task_id)
+        if not task_response.get("success"):
+            raise HTTPException(status_code=404, detail="無法獲取任務數據")
+        
+        full_task_data = task_response["data"]
+        video_pairs = full_task_data.get("video_pairs", [])
+        
+        # 獲取該任務的所有評估
+        task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
+        
+        # 創建視頻對ID到評估的映射
+        evaluation_map = {e["video_pair_id"]: e for e in task_evaluations}
+        
+        # 建立詳細結果列表
+        detailed_results = []
+        
+        for i, pair in enumerate(video_pairs):
+            pair_id = pair["id"]
+            evaluation = evaluation_map.get(pair_id)
+            
+            # 確定實際的資料夾映射
+            left_folder = pair.get("left_folder", task["folder_a"])
+            right_folder = pair.get("right_folder", task["folder_b"])
+            is_swapped = pair.get("is_swapped", False)
+            
+            # 確定用戶的選擇對應的實際資料夾
+            actual_chosen_folder = None
+            if evaluation and evaluation["choice"] in ["A", "B"]:
+                if evaluation["choice"] == "A":
+                    actual_chosen_folder = left_folder
+                else:  # choice == "B"
+                    actual_chosen_folder = right_folder
+            
+            result_item = {
+                "pair_index": i + 1,
+                "pair_id": pair_id,
+                "video_a_path": pair["video_a_path"],
+                "video_b_path": pair["video_b_path"],
+                "video_a_name": pair["video_a_name"],
+                "video_b_name": pair["video_b_name"],
+                "left_folder": left_folder,
+                "right_folder": right_folder,
+                "is_swapped": is_swapped,
+                "user_choice": evaluation["choice"] if evaluation else None,
+                "actual_chosen_folder": actual_chosen_folder,
+                "evaluation_id": evaluation["id"] if evaluation else None,
+                "evaluation_timestamp": evaluation["timestamp"] if evaluation else None,
+                "is_evaluated": evaluation is not None
+            }
+            
+            detailed_results.append(result_item)
+        
+        # 計算總體統計
+        evaluated_count = len([r for r in detailed_results if r["is_evaluated"]])
+        
+        response_data = {
+            "task_id": task_id,
+            "task_name": task["name"],
+            "folder_a": task["folder_a"],
+            "folder_b": task["folder_b"],
+            "total_pairs": len(video_pairs),
+            "evaluated_pairs": evaluated_count,
+            "completion_rate": round((evaluated_count / len(video_pairs) * 100) if video_pairs else 0, 1),
+            "results": detailed_results
+        }
+        
+        return {"success": True, "data": response_data, "message": "詳細評估結果獲取成功"}
+        
+    except Exception as e:
+        print(f"❌ 獲取詳細結果錯誤: {e}")
+        raise HTTPException(status_code=500, detail=f"獲取詳細結果失敗: {str(e)}")
+
 # 輔助函數：同步獲取任務視頻對數據
 def get_task_video_pairs_sync(task_id: str):
     """同步獲取任務的視頻對數據，用於統計分析"""

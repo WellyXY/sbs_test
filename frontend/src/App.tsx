@@ -8,6 +8,7 @@ import CreateTaskPage from './pages/CreateTaskPage'
 import BlindTestPage from './pages/BlindTestPage'
 import StatisticsPage from './pages/StatisticsPage'
 import ResultsPage from './pages/ResultsPage'
+import ReviewResultsPage from './pages/ReviewResultsPage'
 import FolderManagePage from './pages/FolderManagePage'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/tasks/create" element={<CreateTaskPage />} />
             <Route path="/tasks/:taskId/test" element={<BlindTestPage />} />
             <Route path="/tasks/:taskId/results" element={<ResultsPage />} />
+            <Route path="/tasks/:taskId/review" element={<ReviewResultsPage />} />
             <Route path="/tasks/:taskId/statistics" element={<StatisticsPage />} />
           </Routes>
         </Layout>
