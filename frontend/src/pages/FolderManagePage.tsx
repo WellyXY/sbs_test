@@ -4,7 +4,7 @@ import axios from 'axios';
 console.log('🔧 DEBUG: FolderManagePage 載入，準備測試API連接...');
 
 // 直接使用Railway API配置
-import { API_BASE_URL, API_ENDPOINTS, buildFileUrl, logApiConfig } from '../config/api';
+const API_BASE_URL = 'https://sbstest-production.up.railway.app';
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000,
@@ -200,7 +200,7 @@ const FolderManagePage: React.FC = () => {
           });
           
           // 設置請求
-          xhr.open('POST', `${API_BASE_URL}/api/folders/${selectedFolder}/upload`);
+          xhr.open('POST', `https://sbstest-production.up.railway.app/api/folders/${selectedFolder}/upload`);
           xhr.timeout = 60000; // 60秒超時
           xhr.send(formData);
         });

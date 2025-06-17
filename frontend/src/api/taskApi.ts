@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Task, VideoPair, Evaluation, FolderSelection, ApiResponse } from '../types'
 
 // API 基本配置
-import { API_BASE_URL } from '../config/api';
+const API_BASE_URL = 'https://sbstest-production.up.railway.app' // 臨時硬編碼測試
 console.log('🔧 DEBUG: API_BASE_URL =', API_BASE_URL)
 console.log('🔧 DEBUG: ENV =', import.meta.env.VITE_API_URL)
 

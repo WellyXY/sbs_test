@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Plus, Play, BarChart3, Trash2, Clock, CheckCircle } from 'lucide-react'
-import { API_BASE_URL } from '../config/api'
 
 interface Task {
   id: string;
@@ -27,11 +26,7 @@ const TaskListPage: React.FC = () => {
       setLoading(true)
       console.log('🔧 DEBUG: Loading task list...')
       
-import { API_BASE_URL } from '../config/api';
-
-const TaskListPage: React.FC = () => {
-  // ... existing code ...
-      const response = await fetch(`${API_BASE_URL}/api/tasks/`)
+      const response = await fetch('https://sbstest-production.up.railway.app/api/tasks/')
       console.log('🔧 DEBUG: API response status:', response.status)
       
       if (response.ok) {

@@ -181,6 +181,47 @@ async def test_upload_route(folder_name: str):
         "folder_exists": any(f['name'] == folder_name for f in folders_storage)
     }
 
+@app.post("/api/quick-setup")
+async def quick_setup():
+    """快速設置常用資料夾"""
+    try:
+        common_folders = ["old", "new"]
+        created_folders = []
+        
+        for folder_name in common_folders:
+            # 檢查是否已存在
+            if not any(f["name"] == folder_name for f in folders_storage):
+                new_folder = {
+                    "name": folder_name,
+                    "path": f"/uploads/{folder_name}",
+                    "video_count": 0,
+                    "total_size": 0,
+                    "created_time": int(time.time())
+                }
+                folders_storage.append(new_folder)
+                created_folders.append(folder_name)
+                
+                # 創建物理目錄
+                os.makedirs(f"uploads/{folder_name}", exist_ok=True)
+        
+        # 保存到文件
+        save_folders(folders_storage)
+        
+        return {
+            "success": True,
+            "message": f"快速設置完成",
+            "data": {
+                "created_folders": created_folders,
+                "total_folders": len(folders_storage),
+                "all_folders": [f['name'] for f in folders_storage]
+            }
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"快速設置失敗: {str(e)}"
+        }
+
 # 持久化存儲會在startup時初始化
 folders_storage = []
 tasks_storage = []
