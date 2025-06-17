@@ -812,7 +812,7 @@ async def get_task_detailed_results(task_id: str):
                     if i < len(video_files_b):
                         video_b = video_files_b[i]
                         pair = {
-                            "id": f"{task_id}_{i}",
+                            "id": f"{task_id}_pair_{i+1}",
                             "video_a_path": f"uploads/{task['folder_a']}/{video_a}",
                             "video_b_path": f"uploads/{task['folder_b']}/{video_b}",
                             "video_a_name": video_a,
@@ -835,7 +835,7 @@ async def get_task_detailed_results(task_id: str):
         detailed_results = []
         
         for i, pair in enumerate(video_pairs):
-            pair_id = pair.get("id", f"{task_id}_{i}")
+            pair_id = pair.get("id", f"{task_id}_pair_{i+1}")
             evaluation = evaluation_map.get(pair_id)
             
             print(f"🔧 DEBUG: 視頻對 {i}: pair_id={pair_id}, evaluation={evaluation}")
