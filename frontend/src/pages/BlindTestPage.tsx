@@ -77,10 +77,10 @@ const BlindTestPage: React.FC = () => {
         if (result.success && result.data) {
           const taskData = result.data
           console.log('🔧 DEBUG: 任務數據:', taskData)
-          setTask(taskData)
-          
-          if (taskData.video_pairs && taskData.video_pairs.length > 0) {
-            setCurrentPair(taskData.video_pairs[0])
+        setTask(taskData)
+        
+        if (taskData.video_pairs && taskData.video_pairs.length > 0) {
+          setCurrentPair(taskData.video_pairs[0])
             console.log('✅ DEBUG: 設置第一個視頻對:', taskData.video_pairs[0])
           } else {
             console.log('❌ DEBUG: 沒有找到視頻對')

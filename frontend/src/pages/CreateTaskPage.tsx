@@ -79,11 +79,11 @@ const CreateTaskPage: React.FC = () => {
       console.log('🔧 DEBUG: 創建任務:', { taskName, folderA, folderB, isBlind });
       
       const response = await api.post('/api/tasks/', {
-        name: taskName,
-        folder_a: folderA,
-        folder_b: folderB,
-        is_blind: isBlind,
-        description: taskDescription || undefined
+          name: taskName,
+          folder_a: folderA,
+          folder_b: folderB,
+          is_blind: isBlind,
+          description: taskDescription || undefined
       });
 
       console.log('🔧 DEBUG: 創建任務響應:', response.data);

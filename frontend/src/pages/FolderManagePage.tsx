@@ -93,9 +93,9 @@ const FolderManagePage: React.FC = () => {
       console.log('🔧 DEBUG: 創建資料夾:', newFolderName);
       
       const response = await api.post('/api/folders/create', {
-        name: newFolderName.trim()
+          name: newFolderName.trim()
       });
-      
+
       console.log('🔧 DEBUG: 創建資料夾響應:', response.data);
       
       if (response.data.success) {
@@ -209,7 +209,7 @@ const FolderManagePage: React.FC = () => {
       console.log('✅ DEBUG: All files uploaded successfully');
       
       // 重新加載文件夾列表和文件列表
-      await loadFolders();
+        await loadFolders();
       if (selectedFolder) {
         await loadFolderFiles(selectedFolder);
       }
@@ -272,7 +272,7 @@ const FolderManagePage: React.FC = () => {
 
     try {
       console.log('🔧 DEBUG: 刪除資料夾:', folderName);
-      
+
       const response = await api.delete(`/api/folders/${folderName}`);
       console.log('🔧 DEBUG: 刪除響應:', response.data);
 

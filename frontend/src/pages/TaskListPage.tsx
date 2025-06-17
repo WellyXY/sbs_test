@@ -20,7 +20,7 @@ const TaskListPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(false)
 
-  // Load task list  
+  // Load task list
   const loadTasks = async () => {
     try {
       setLoading(true)
