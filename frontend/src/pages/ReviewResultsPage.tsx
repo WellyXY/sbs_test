@@ -61,39 +61,39 @@ const ReviewResultsPage: React.FC = () => {
     
     try {
       setLoading(true)
-      console.log('🔧 DEBUG: 載入詳細結果，任務ID:', taskId)
+      console.log('🔧 DEBUG: Loading detailed results, Task ID:', taskId)
       
-      // 先檢查評估數據
+      // First check evaluation data
       const evalResponse = await fetch(`https://sbstest-production.up.railway.app/api/evaluations/`)
       if (evalResponse.ok) {
         const evalResult = await evalResponse.json()
-        console.log('🔧 DEBUG: 所有評估數據:', evalResult)
+        console.log('🔧 DEBUG: All evaluation data:', evalResult)
         
-        // 過濾出當前任務的評估
+        // Filter evaluations for current task
         const taskEvaluations = evalResult.data.filter((e: any) => e.video_pair_id.startsWith(taskId))
-        console.log('🔧 DEBUG: 當前任務的評估:', taskEvaluations)
+        console.log('🔧 DEBUG: Current task evaluations:', taskEvaluations)
       }
       
       const response = await fetch(`https://sbstest-production.up.railway.app/api/tasks/${taskId}/detailed-results`)
-      console.log('🔧 DEBUG: 詳細結果API響應狀態:', response.status)
+      console.log('🔧 DEBUG: Detailed results API response status:', response.status)
       
       if (response.ok) {
         const result = await response.json()
-        console.log('🔧 DEBUG: 詳細結果數據:', result)
+        console.log('🔧 DEBUG: Detailed results data:', result)
         
         if (result.success && result.data) {
-          console.log('🔧 DEBUG: 設置詳細結果數據:', result.data)
-          console.log('🔧 DEBUG: 第一個結果項目:', result.data.results[0])
+          console.log('🔧 DEBUG: Setting detailed results data:', result.data)
+          console.log('🔧 DEBUG: First result item:', result.data.results[0])
           setData(result.data)
         } else {
-          setError('無法載入詳細結果')
+          setError('Unable to load detailed results')
         }
       } else {
-        setError('載入詳細結果失敗')
+        setError('Failed to load detailed results')
       }
     } catch (error) {
-      console.error('❌ DEBUG: 詳細結果載入錯誤:', error)
-      setError('網絡錯誤')
+      console.error('❌ DEBUG: Detailed results loading error:', error)
+      setError('Network error')
     } finally {
       setLoading(false)
     }
@@ -157,19 +157,19 @@ const ReviewResultsPage: React.FC = () => {
     })
 
     if (!result.is_evaluated || !result.user_choice) {
-      return { text: '未評估', color: 'text-gray-500', bgColor: 'bg-gray-100' }
+      return { text: 'Not evaluated', color: 'text-gray-500' }
     }
 
     if (result.user_choice === 'tie') {
-      return { text: '平手', color: 'text-yellow-700', bgColor: 'bg-yellow-100' }
+      return { text: 'Tie (No preference)', color: 'text-yellow-600' }
     }
 
-    const choiceText = result.user_choice === 'A' ? `選擇左側 (${result.left_folder})` : `選擇右側 (${result.right_folder})`
+    const choiceText = result.user_choice === 'A' ? `Left (${result.left_folder})` : `Right (${result.right_folder})`
     
     if (result.actual_chosen_folder === data?.folder_a) {
-      return { text: choiceText, color: 'text-blue-700', bgColor: 'bg-blue-100' }
+      return { text: choiceText, color: 'text-blue-600' }
     } else {
-      return { text: choiceText, color: 'text-green-700', bgColor: 'bg-green-100' }
+      return { text: choiceText, color: 'text-green-600' }
     }
   }
 
@@ -203,7 +203,7 @@ const ReviewResultsPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="text-lg">載入詳細結果中...</div>
+          <div className="text-lg">Loading...</div>
         </div>
       </div>
     )
@@ -213,12 +213,12 @@ const ReviewResultsPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center text-red-600">
-          <p>{error || '無法載入詳細結果'}</p>
+          <p>{error || 'Unable to load detailed results'}</p>
           <button 
-            onClick={() => navigate(`/tasks/${taskId}/results`)}
+            onClick={() => navigate(-1)}
             className="mt-4 text-blue-600 hover:text-blue-700"
           >
-            返回結果頁面
+            Go Back
           </button>
         </div>
       </div>
@@ -230,13 +230,13 @@ const ReviewResultsPage: React.FC = () => {
   if (!currentResult) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          <p>沒有找到結果數據</p>
+        <div className="text-center text-gray-500">
+          <p>No test results found</p>
           <button 
-            onClick={() => navigate(`/tasks/${taskId}/results`)}
+            onClick={() => navigate(-1)}
             className="mt-4 text-blue-600 hover:text-blue-700"
           >
-            返回結果頁面
+            Go Back
           </button>
         </div>
       </div>
@@ -249,56 +249,55 @@ const ReviewResultsPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <h1 className="text-3xl font-bold text-gray-900">查看測試結果</h1>
-          <button
-            onClick={() => navigate(`/tasks/${taskId}/results`)}
-            className="flex items-center text-gray-600 hover:text-gray-800"
+        <div className="flex items-center gap-4 mb-4">
+          <button 
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-700"
           >
-            <ArrowLeft className="w-5 h-5 mr-1" />
-            返回結果頁面
+            <ArrowLeft className="w-5 h-5" />
+            Back to Results
           </button>
+          <h1 className="text-3xl font-bold text-gray-900">Review Test Results</h1>
         </div>
-        <h2 className="text-xl text-gray-600">{data.task_name}</h2>
+        <p className="text-gray-600">{data.task_name}</p>
       </div>
 
       {/* Progress */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+      <div className="mb-8 bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">進度: {currentIndex + 1} / {data.total_pairs}</h3>
-          <div className="text-sm text-gray-500">
-            評估完成: {data.evaluated_pairs} / {data.total_pairs} ({data.completion_rate}%)
-          </div>
+          <span className="text-lg font-medium">Progress: {currentIndex + 1} / {data.total_pairs}</span>
+          <span className="text-sm text-gray-500">Completion Rate: {data.evaluated_pairs} / {data.total_pairs} ({data.completion_rate}%)</span>
         </div>
         
         {/* Progress bar */}
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div 
-            className="bg-blue-600 h-2 rounded-full transition-all"
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
             style={{ width: `${((currentIndex + 1) / data.total_pairs) * 100}%` }}
           ></div>
         </div>
 
-        {/* Navigation buttons */}
-        <div className="flex justify-between items-center">
-          <button
+        {/* Navigation */}
+        <div className="flex items-center justify-between">
+          <button 
             onClick={goToPrevious}
             disabled={currentIndex === 0}
-            className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            上一個
+            <ChevronLeft className="w-5 h-5" />
+            Previous
           </button>
 
-          <div className="flex space-x-2">
+          {/* Page numbers */}
+          <div className="flex gap-2">
             {data.results.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToIndex(index)}
-                className={`w-8 h-8 rounded-full text-sm font-medium ${
-                  index === currentIndex 
-                    ? 'bg-blue-600 text-white' 
-                    : data.results[index].is_evaluated
+                className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                  index === currentIndex
+                    ? 'bg-blue-600 text-white'
+                    : index < data.evaluated_pairs
                     ? 'bg-green-100 text-green-700 hover:bg-green-200'
                     : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
@@ -308,107 +307,78 @@ const ReviewResultsPage: React.FC = () => {
             ))}
           </div>
 
-          <button
+          <button 
             onClick={goToNext}
             disabled={currentIndex === data.total_pairs - 1}
-            className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            下一個
-            <ChevronRight className="w-5 h-5 ml-1" />
+            Next
+            <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Choice result */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 className="text-lg font-semibold mb-4">您的選擇</h3>
-        <div className={`inline-flex items-center px-4 py-2 rounded-lg ${choiceDisplay.bgColor}`}>
-          <span className={`font-medium ${choiceDisplay.color}`}>
-            {choiceDisplay.text}
-          </span>
+      {/* Your Choice */}
+      <div className="mb-8 bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold mb-4">Your Choice</h2>
+        <div className={`text-lg font-medium ${choiceDisplay.color}`}>
+          {choiceDisplay.text}
         </div>
-        {currentResult.is_evaluated && currentResult.user_choice !== 'tie' && (
-          <div className="mt-2 text-sm text-gray-600">
-            實際選擇的資料夾: <span className="font-medium">{currentResult.actual_chosen_folder}</span>
-          </div>
-        )}
+        <div className="text-sm text-gray-500 mt-2">
+          Actual folder chosen: {currentResult.actual_chosen_folder || 'None'}
+        </div>
       </div>
 
-      {/* Video comparison */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold">視頻對比 #{currentResult.pair_index}</h3>
-          <p className="text-sm text-gray-600 mt-1">
-            提示詞: {extractPrompt(currentResult.video_a_name)}
-          </p>
+      {/* Video Pair */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-xl font-semibold mb-4">Video Pair #{currentResult.pair_index}</h3>
+        <div className="text-sm text-gray-500 mb-6">
+          Prompt: {extractPrompt(currentResult.video_a_name)}
         </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Video A */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium text-gray-900">左側 (A)</h4>
-              <span className="text-sm px-2 py-1 bg-blue-100 text-blue-700 rounded">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Video (A) */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-medium">Left (A)</h4>
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
                 {currentResult.left_folder}
               </span>
             </div>
             <div className="aspect-video bg-black rounded-lg overflow-hidden">
-              <video
+              <video 
                 ref={videoARef}
-                className="w-full h-full object-contain"
-                controls
-                muted
-                playsInline
+                controls 
+                className="w-full h-full"
                 src={getVideoUrl(currentResult.video_a_path)}
-                onError={(e) => {
-                  console.error('Video A load error:', e)
-                }}
               >
-                您的瀏覽器不支持視頻播放
+                Your browser does not support the video tag.
               </video>
             </div>
-            <p className="text-xs text-gray-500 break-all">
-              {currentResult.video_a_name}
-            </p>
+            <p className="mt-2 text-sm text-gray-600">{currentResult.video_a_name}</p>
           </div>
 
-          {/* Video B */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium text-gray-900">右側 (B)</h4>
-              <span className="text-sm px-2 py-1 bg-green-100 text-green-700 rounded">
+          {/* Right Video (B) */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-lg font-medium">Right (B)</h4>
+              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
                 {currentResult.right_folder}
               </span>
             </div>
             <div className="aspect-video bg-black rounded-lg overflow-hidden">
-              <video
+              <video 
                 ref={videoBRef}
-                className="w-full h-full object-contain"
-                controls
-                muted
-                playsInline
+                controls 
+                className="w-full h-full"
                 src={getVideoUrl(currentResult.video_b_path)}
-                onError={(e) => {
-                  console.error('Video B load error:', e)
-                }}
               >
-                您的瀏覽器不支持視頻播放
+                Your browser does not support the video tag.
               </video>
             </div>
-            <p className="text-xs text-gray-500 break-all">
-              {currentResult.video_b_name}
-            </p>
+            <p className="mt-2 text-sm text-gray-600">{currentResult.video_b_name}</p>
           </div>
         </div>
-
-        {/* Metadata */}
-        {currentResult.evaluation_timestamp && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              評估時間: {new Date(currentResult.evaluation_timestamp).toLocaleString('zh-TW')}
-            </p>
-          </div>
-        )}
       </div>
     </div>
   )

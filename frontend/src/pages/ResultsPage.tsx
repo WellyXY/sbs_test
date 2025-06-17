@@ -82,14 +82,14 @@ const ResultsPage: React.FC = () => {
   const resetResults = async () => {
     if (!taskId) return
     
-    if (!confirm('您確定要重置這個任務的所有結果嗎？此操作無法撤消。')) {
+    if (!confirm('Are you sure you want to reset all results for this task? This action cannot be undone.')) {
       return
     }
     
     try {
       console.log('🔧 DEBUG: Resetting results, task ID:', taskId)
       // This would call a reset API endpoint
-      alert('結果重置功能將在此實現')
+      alert('Results reset functionality would be implemented here')
     } catch (error) {
       console.error('❌ DEBUG: Reset error:', error)
     }
@@ -103,7 +103,7 @@ const ResultsPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
-          <div className="text-lg">載入統計數據中...</div>
+          <div className="text-lg">Loading statistics...</div>
         </div>
       </div>
     )
@@ -113,12 +113,12 @@ const ResultsPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center text-red-600">
-          <p>{error || '無法載入統計數據'}</p>
+          <p>{error || 'Unable to load statistics'}</p>
           <button 
             onClick={() => navigate('/tasks')}
             className="mt-4 text-blue-600 hover:text-blue-700"
           >
-            返回任務列表
+            Back to Task List
           </button>
         </div>
       </div>
@@ -130,12 +130,12 @@ const ResultsPage: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-3xl font-bold text-gray-900">測試結果</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Test Results</h1>
           <button
             onClick={() => navigate('/tasks')}
             className="text-gray-600 hover:text-gray-800"
           >
-            ← 返回任務列表
+            ← Back to Task List
           </button>
         </div>
         <h2 className="text-xl text-gray-600">{statistics.task_name}</h2>
@@ -143,31 +143,31 @@ const ResultsPage: React.FC = () => {
 
       {/* Overall Statistics */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">總體統計</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Overall Statistics</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">{statistics.total_evaluations}</div>
-            <div className="text-sm text-gray-600">總評估數</div>
+            <div className="text-sm text-gray-600">Total Evaluations</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">{statistics.video_pairs_count}</div>
-            <div className="text-sm text-gray-600">視頻對數</div>
+            <div className="text-sm text-gray-600">Video Pairs</div>
           </div>
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-600">{statistics.completion_rate}%</div>
-            <div className="text-sm text-gray-600">完成率</div>
+            <div className="text-sm text-gray-600">Completion Rate</div>
           </div>
         </div>
       </div>
 
       {/* Preference Results */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">偏好結果</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Preference Results</h3>
         <div className="space-y-4">
           {/* Folder A */}
           <div>
             <div className="flex justify-between mb-2">
-              <span className="font-medium">{statistics.folder_names.folder_a} (A) 更好</span>
+              <span className="font-medium">{statistics.folder_names.folder_a} (A) is Better</span>
               <span className="font-bold text-blue-600">
                 {statistics.preferences.a_better} ({statistics.preferences.a_better_percent}%)
               </span>
@@ -183,7 +183,7 @@ const ResultsPage: React.FC = () => {
           {/* Folder B */}
           <div>
             <div className="flex justify-between mb-2">
-              <span className="font-medium">{statistics.folder_names.folder_b} (B) 更好</span>
+              <span className="font-medium">{statistics.folder_names.folder_b} (B) is Better</span>
               <span className="font-bold text-green-600">
                 {statistics.preferences.b_better} ({statistics.preferences.b_better_percent}%)
               </span>
@@ -199,7 +199,7 @@ const ResultsPage: React.FC = () => {
           {/* Tie */}
           <div>
             <div className="flex justify-between mb-2">
-              <span className="font-medium">差不多</span>
+              <span className="font-medium">About the Same</span>
               <span className="font-bold text-yellow-600">
                 {statistics.preferences.tie} ({statistics.preferences.tie_percent}%)
               </span>
@@ -218,7 +218,7 @@ const ResultsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Pie Chart - 偏好分布 */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">偏好分布</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Preference Distribution</h3>
           {statistics.total_evaluations > 0 ? (
             <div className="h-80">
               <Pie
@@ -226,7 +226,7 @@ const ResultsPage: React.FC = () => {
                   labels: [
                     `${statistics.folder_names.folder_a} (A)`,
                     `${statistics.folder_names.folder_b} (B)`,
-                    '平手'
+                    'Tie'
                   ],
                   datasets: [
                     {
@@ -266,7 +266,7 @@ const ResultsPage: React.FC = () => {
                           const label = context.label || '';
                           const value = context.parsed || 0;
                           const percentage = ((value / statistics.total_evaluations) * 100).toFixed(1);
-                          return `${label}: ${value} 票 (${percentage}%)`;
+                          return `${label}: ${value} votes (${percentage}%)`;
                         },
                       },
                     },
@@ -276,21 +276,21 @@ const ResultsPage: React.FC = () => {
             </div>
           ) : (
             <div className="h-80 flex items-center justify-center text-gray-500">
-              沒有評估數據
+              No evaluation data available
             </div>
           )}
         </div>
 
         {/* Bar Chart - 比較統計 */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">比較圖表</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Comparison Chart</h3>
           <div className="h-80">
             <Bar
               data={{
-                labels: ['資料夾 A', '資料夾 B', '平手'],
+                labels: ['Folder A', 'Folder B', 'Tie'],
                 datasets: [
                   {
-                    label: '票數',
+                    label: 'Votes',
                     data: [
                       statistics.preferences.a_better,
                       statistics.preferences.b_better,
@@ -322,7 +322,7 @@ const ResultsPage: React.FC = () => {
                       label: (context) => {
                         const value = context.parsed.y || 0;
                         const percentage = ((value / statistics.total_evaluations) * 100).toFixed(1);
-                        return `${context.label}: ${value} 票 (${percentage}%)`;
+                        return `${context.label}: ${value} votes (${percentage}%)`;
                       },
                     },
                   },
@@ -347,19 +347,19 @@ const ResultsPage: React.FC = () => {
           onClick={() => navigate(`/tasks/${taskId}/review`)}
           className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
         >
-          查看詳細結果
+          Check your result
         </button>
         <button
           onClick={() => navigate(`/tasks/${taskId}/test`)}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          重新測試
+          Test Again
         </button>
         <button
           onClick={resetResults}
           className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700"
         >
-          重置結果
+          Reset Results
         </button>
       </div>
     </div>
