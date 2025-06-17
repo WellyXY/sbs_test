@@ -793,15 +793,35 @@ async def get_task_detailed_results(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
     
-    # 獲取任務的完整數據，包括視頻對
     try:
-        # 調用現有的 get_task 函數來獲取完整的任務數據
-        task_response = await get_task(task_id)
-        if not task_response.get("success"):
-            raise HTTPException(status_code=404, detail="無法獲取任務數據")
+        # 直接從任務數據獲取視頻對信息，避免循環調用
+        video_pairs = task.get("video_pairs", [])
         
-        full_task_data = task_response["data"]
-        video_pairs = full_task_data.get("video_pairs", [])
+        # 如果任務中沒有video_pairs，嘗試動態生成
+        if not video_pairs:
+            # 獲取資料夾中的視頻文件
+            folder_a_path = f"uploads/{task['folder_a']}"
+            folder_b_path = f"uploads/{task['folder_b']}"
+            
+            if os.path.exists(folder_a_path) and os.path.exists(folder_b_path):
+                video_files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'))]
+                video_files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'))]
+                
+                # 簡單匹配邏輯
+                for i, video_a in enumerate(video_files_a):
+                    if i < len(video_files_b):
+                        video_b = video_files_b[i]
+                        pair = {
+                            "id": f"{task_id}_{i}",
+                            "video_a_path": f"uploads/{task['folder_a']}/{video_a}",
+                            "video_b_path": f"uploads/{task['folder_b']}/{video_b}",
+                            "video_a_name": video_a,
+                            "video_b_name": video_b,
+                            "left_folder": task['folder_a'],
+                            "right_folder": task['folder_b'],
+                            "is_swapped": False
+                        }
+                        video_pairs.append(pair)
         
         # 獲取該任務的所有評估
         task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
@@ -813,7 +833,7 @@ async def get_task_detailed_results(task_id: str):
         detailed_results = []
         
         for i, pair in enumerate(video_pairs):
-            pair_id = pair["id"]
+            pair_id = pair.get("id", f"{task_id}_{i}")
             evaluation = evaluation_map.get(pair_id)
             
             # 確定實際的資料夾映射
@@ -832,10 +852,10 @@ async def get_task_detailed_results(task_id: str):
             result_item = {
                 "pair_index": i + 1,
                 "pair_id": pair_id,
-                "video_a_path": pair["video_a_path"],
-                "video_b_path": pair["video_b_path"],
-                "video_a_name": pair["video_a_name"],
-                "video_b_name": pair["video_b_name"],
+                "video_a_path": pair.get("video_a_path", f"uploads/{task['folder_a']}/{pair.get('video_a_name', '')}"),
+                "video_b_path": pair.get("video_b_path", f"uploads/{task['folder_b']}/{pair.get('video_b_name', '')}"),
+                "video_a_name": pair.get("video_a_name", ""),
+                "video_b_name": pair.get("video_b_name", ""),
                 "left_folder": left_folder,
                 "right_folder": right_folder,
                 "is_swapped": is_swapped,
@@ -866,6 +886,8 @@ async def get_task_detailed_results(task_id: str):
         
     except Exception as e:
         print(f"❌ 獲取詳細結果錯誤: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"獲取詳細結果失敗: {str(e)}")
 
 # 輔助函數：同步獲取任務視頻對數據
