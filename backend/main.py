@@ -838,6 +838,8 @@ async def get_task_detailed_results(task_id: str):
             pair_id = pair.get("id", f"{task_id}_{i}")
             evaluation = evaluation_map.get(pair_id)
             
+            print(f"🔧 DEBUG: 視頻對 {i}: pair_id={pair_id}, evaluation={evaluation}")
+            
             # 確定實際的資料夾映射
             left_folder = pair.get("left_folder", task["folder_a"])
             right_folder = pair.get("right_folder", task["folder_b"])
@@ -850,6 +852,7 @@ async def get_task_detailed_results(task_id: str):
                     actual_chosen_folder = left_folder
                 else:  # choice == "B"
                     actual_chosen_folder = right_folder
+                print(f"🔧 DEBUG: 用戶選擇={evaluation['choice']}, 實際資料夾={actual_chosen_folder}")
             
             result_item = {
                 "pair_index": i + 1,

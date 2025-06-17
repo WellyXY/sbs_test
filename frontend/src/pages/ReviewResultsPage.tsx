@@ -71,6 +71,8 @@ const ReviewResultsPage: React.FC = () => {
         console.log('🔧 DEBUG: 詳細結果數據:', result)
         
         if (result.success && result.data) {
+          console.log('🔧 DEBUG: 設置詳細結果數據:', result.data)
+          console.log('🔧 DEBUG: 第一個結果項目:', result.data.results[0])
           setData(result.data)
         } else {
           setError('無法載入詳細結果')
@@ -135,6 +137,14 @@ const ReviewResultsPage: React.FC = () => {
 
   // Get choice color and text
   const getChoiceDisplay = (result: DetailedResult) => {
+    console.log('🔧 DEBUG: getChoiceDisplay input:', {
+      is_evaluated: result.is_evaluated,
+      user_choice: result.user_choice,
+      left_folder: result.left_folder,
+      right_folder: result.right_folder,
+      actual_chosen_folder: result.actual_chosen_folder
+    })
+
     if (!result.is_evaluated || !result.user_choice) {
       return { text: '未評估', color: 'text-gray-500', bgColor: 'bg-gray-100' }
     }
