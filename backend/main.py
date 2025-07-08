@@ -139,10 +139,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 靜態文件服務（暫時註釋避免錯誤）
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-app.mount("/exports", StaticFiles(directory="exports"), name="exports")
+# 靜態文件服務 - 安全掛載，只在目錄存在時才掛載
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+else:
+    print("⚠️  Warning: static directory not found, skipping static files mount")
+
+if os.path.exists("uploads"):
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+else:
+    os.makedirs("uploads", exist_ok=True)
+    app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+if os.path.exists("exports"):
+    app.mount("/exports", StaticFiles(directory="exports"), name="exports")  
+else:
+    os.makedirs("exports", exist_ok=True)
+    app.mount("/exports", StaticFiles(directory="exports"), name="exports")
 
 # 註冊路由（暫時註釋）
 # from api import tasks
