@@ -1,16 +1,33 @@
-node_modules
-npm-debug.log
+# Git
 .git
 .gitignore
+.github
+
+# Node / Vercel
+frontend/node_modules
+frontend/.vercel
+frontend/dist
+.vercel
+
+# Python
+backend/__pycache__
+backend/*.pyc
+backend/.venv
+backend/.env
+*.venv
+.env
+
+# IDE / OS
+.idea
+.vscode
+*.DS_Store
+
+node_modules
+npm-debug.log
 README.md
 .env
 .nyc_output
 coverage
-.DS_Store
 *.log
-.vscode
-.idea
-__pycache__
-*.pyc
 .pytest_cache
 .coverage 

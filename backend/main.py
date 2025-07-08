@@ -131,9 +131,16 @@ app = FastAPI(
 )
 
 # 配置 CORS
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://sbs-test.vercel.app",
+    "https://sbstest-production.up.railway.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 暫時允許所有域名
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
