@@ -16,12 +16,22 @@ import shutil
 import random
 from urllib.parse import quote, unquote
 from typing import List
+import sys
+import traceback
+import pandas as pd
 
-# 持久化存儲配置
+# --- 1. Top-level Debug Logging ---
+print("--- [DEBUG] App is starting up... ---")
+print(f"--- [DEBUG] Python Version: {sys.version}")
+print(f"--- [DEBUG] Current Working Directory: {os.getcwd()}")
+print(f"--- [DEBUG] Files in CWD: {os.listdir('.')}")
+
+# --- 2. Constants and Configuration ---
 DATA_DIR = "data"
 FOLDERS_FILE = os.path.join(DATA_DIR, "folders.json")
 TASKS_FILE = os.path.join(DATA_DIR, "tasks.json")
 EVALUATIONS_FILE = os.path.join(DATA_DIR, "evaluations.json")
+SUPPORTED_FORMATS = [".mp4", ".mov", ".avi", ".mkv", ".webm"]
 
 def load_folders():
     """從文件載入資料夾數據"""
@@ -96,28 +106,36 @@ def save_evaluations(evaluations_data):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """應用程式生命週期管理"""
-    # 啟動時：創建數據庫表（暫時註釋）
-    # Base.metadata.create_all(bind=engine)
-    print("✅ 應用啟動完成")
-    
-    # 創建上傳目錄和數據目錄
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs("uploads", exist_ok=True)
-    os.makedirs("exports", exist_ok=True)
-    print("✅ 文件目錄初始化完成")
-    
-    # 啟動時載入持久化數據
-    global folders_storage, tasks_storage, evaluations_storage
-    folders_storage = load_folders()
-    tasks_storage = load_tasks()
-    evaluations_storage = load_evaluations()
+    print("--- [DEBUG] Lifespan context starting...")
+    try:
+        # 創建上傳目錄和數據目錄
+        print("--- [DEBUG] Ensuring directories exist...")
+        os.makedirs(DATA_DIR, exist_ok=True)
+        os.makedirs("uploads", exist_ok=True)
+        os.makedirs("exports", exist_ok=True)
+        print(f"--- [DEBUG] Directory '{DATA_DIR}' exists: {os.path.exists(DATA_DIR)}")
+        print(f"--- [DEBUG] Directory 'uploads' exists: {os.path.exists('uploads')}")
+        print(f"--- [DEBUG] Directory 'exports' exists: {os.path.exists('exports')}")
+        
+        # 啟動時載入持久化數據
+        print("--- [DEBUG] Loading data from JSON files...")
+        global folders_storage, tasks_storage, evaluations_storage
+        folders_storage = load_folders()
+        tasks_storage = load_tasks()
+        evaluations_storage = load_evaluations()
 
-    print(f"🚀 應用啟動 - 載入了 {len(folders_storage)} 個資料夾，{len(tasks_storage)} 個任務，{len(evaluations_storage)} 個評估")
-    
-    yield
-    
-    # 關閉時的清理工作
-    print("🔄 應用程式正在關閉...")
+        print(f"--- [SUCCESS] Lifespan startup complete. Loaded {len(folders_storage)} folders, {len(tasks_storage)} tasks.")
+        
+        yield
+        
+    except Exception as e:
+        print(f"!!!!!! [FATAL] ERROR DURING LIFESPAN STARTUP !!!!!!", file=sys.stderr)
+        print(f"Error Type: {type(e).__name__}", file=sys.stderr)
+        print(f"Error Message: {e}", file=sys.stderr)
+        traceback.print_exc(file=sys.stderr)
+    finally:
+        # 關閉時的清理工作
+        print("--- [DEBUG] Lifespan context shutting down...")
 
 
 # 創建 FastAPI 應用實例
@@ -129,6 +147,8 @@ app = FastAPI(
     redoc_url="/api/redoc",
     lifespan=lifespan
 )
+
+print("--- [DEBUG] FastAPI app instance created successfully.")
 
 # 配置 CORS
 origins = [
