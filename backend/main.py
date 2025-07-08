@@ -249,8 +249,9 @@ async def health_check():
 
 @app.get("/api/health")
 async def api_health_check():
-    """API 健康檢查端點"""
-    return await health_check()
+    """API 健康檢查端點，帶有日誌探針。"""
+    print("--- [HEALTH CHECK] /api/health endpoint was hit! ---")
+    return {"status": "healthy", "version": "1.0.0", "message": "Health check successful"}
 
 @app.get("/api/test/upload/{folder_name}")
 async def test_upload_route(folder_name: str):
