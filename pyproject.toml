@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "sbs-backend"
+version = "0.1.0"
+description = "Side-by-Side Video Blind Test Service"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "backend"}]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+sqlalchemy = "^2.0.23"
+pydantic = "^2.5.0"
+python-multipart = "^0.0.6"
+aiofiles = "^23.2.1"
+pandas = "^2.1.4"
+openpyxl = "^3.1.2"
+python-dotenv = "^1.0.0"
+gunicorn = "^21.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 

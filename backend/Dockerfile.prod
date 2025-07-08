@@ -1,0 +1,43 @@
+# syntax=docker/dockerfile:1
+
+# --- 1. Builder Stage ---
+# 使用官方的 Python 鏡像作為基礎
+FROM python:3.9-slim-buster as builder
+
+# 設置工作目錄
+WORKDIR /app
+
+# 安裝構建工具
+RUN pip install --no-cache-dir --upgrade pip poetry
+
+# 複製依賴定義文件
+# 這一步利用了 Docker 的緩存機制。只要這兩個文件不變，就不會重新安裝。
+COPY ../pyproject.toml ../poetry.lock* ./
+
+# 安裝依賴，但不創建 virtualenv
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# --- 2. Final Stage ---
+# 使用一個更輕量的基礎鏡像
+FROM python:3.9-slim-buster as final
+
+# 設置工作目錄
+WORKDIR /app
+
+# 從 builder stage 複製安裝好的依賴
+COPY --from=builder /app /app
+
+# 複製後端應用程序代碼
+# 將這一步放在後面，可以確保代碼變動時，不會觸發依賴的重新安裝
+COPY . .
+
+# 開放服務器端口
+EXPOSE 8000
+
+# 設置啟動命令
+# 使用 Gunicorn 作為生產環境的 WSGI 服務器，性能更好
+# --workers: 工作進程數，通常設置為 (2 * CPU核心數) + 1
+# --worker-class: 使用 uvicorn 的 worker 類來支持異步 FastAPI
+# --bind: 監聽所有網絡接口的 $PORT 端口 (由 Railway 提供)
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:$PORT", "main:app"] 
