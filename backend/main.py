@@ -176,14 +176,54 @@ async def root():
         "status": "healthy"
     }
 
-# 健康檢查端點 - 同時提供兩個路徑
+# 健康檢查端點 - 增強版本
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
+    """健康檢查端點 - 包含詳細的系統信息"""
+    try:
+        import time
+        import os
+        import sys
+        
+        # 檢查基本功能
+        current_time = time.time()
+        
+        # 檢查目錄狀態
+        directories_status = {}
+        for dir_name in ["static", "uploads", "exports"]:
+            directories_status[dir_name] = {
+                "exists": os.path.exists(dir_name),
+                "writable": os.access(dir_name, os.W_OK) if os.path.exists(dir_name) else False
+            }
+        
+        # 檢查存儲狀態
+        storage_status = {
+            "folders": len(folders_storage),
+            "tasks": len(tasks_storage),
+            "evaluations": len(evaluations_storage)
+        }
+        
+        return {
+            "status": "healthy",
+            "version": "1.0.0",
+            "message": "Video blind testing service is running",
+            "timestamp": current_time,
+            "directories": directories_status,
+            "storage": storage_status,
+            "python_version": sys.version,
+            "port": os.getenv("PORT", "unknown")
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": time.time()
+        }
 
 @app.get("/api/health")
 async def api_health_check():
-    return {"status": "healthy", "version": "1.0.0", "message": "Video blind testing service is running"}
+    """API 健康檢查端點"""
+    return await health_check()
 
 @app.get("/api/test/upload/{folder_name}")
 async def test_upload_route(folder_name: str):
