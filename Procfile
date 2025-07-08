@@ -1,1 +1,0 @@
-web: python -m uvicorn backend.main_test:app --host 0.0.0.0 --port $PORT --log-level debug 
