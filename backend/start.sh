@@ -11,5 +11,5 @@ echo "📁 目錄結構："
 ls -la
 
 # 啟動應用
-echo "🚀 啟動 FastAPI 應用..."
-uvicorn main:app --host 0.0.0.0 --port $PORT 
+echo "�� 啟動 FastAPI 應用..."
+exec uvicorn main:app --host 0.0.0.0 --port $PORT --log-level debug 
