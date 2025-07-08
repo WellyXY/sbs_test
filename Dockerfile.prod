@@ -1,0 +1,10 @@
+# ... existing code ...
+# Copy the application code
+COPY backend/ /app/
+
+# Set the port that the container will listen on
+# ... existing code ...
+EXPOSE 8080
+
+# Command to run the application using the simple python server
+CMD ["python", "-u", "/app/main_very_simple.py"]
