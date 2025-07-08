@@ -2,9 +2,12 @@
 # Copy the application code
 COPY backend/ /app/
 
+# Add a script to be executed every time the container starts.
+COPY backend/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Set the port that the container will listen on
-# ... existing code ...
 EXPOSE 8080
 
-# Command to run the application using the simple python server
-CMD ["python", "-u", "/app/main_very_simple.py"]
+# Command to run the application using the start script
+CMD ["/app/start.sh"]
