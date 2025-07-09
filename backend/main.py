@@ -1282,16 +1282,19 @@ if __name__ == "__main__":
             if self.path == "/api/health":
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(b'{"status": "ok"}')
             else:
-                self.send_response(404)
+                self.send_response(200)
                 self.send_header("Content-type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
-                self.wfile.write(b'{"error": "Not Found"}')
+                self.wfile.write(b'{"message": "Simple server is working!"}')
     
     print(f"--- [SIMPLE SERVER] Starting http.server on port {PORT} ---")
-    server_address = ("", PORT)
+    print(f"--- [SIMPLE SERVER] Binding to 0.0.0.0:{PORT} ---")
+    server_address = ("0.0.0.0", PORT)
     httpd = HTTPServer(server_address, SimpleServer)
     
     try:
