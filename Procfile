@@ -1,0 +1,1 @@
+web: cd backend && python -u main_very_simple.py 
