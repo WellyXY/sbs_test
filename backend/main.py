@@ -1270,25 +1270,34 @@ async def global_exception_handler(request, exc):
 
 
 if __name__ == "__main__":
-    print("🚀 正在啟動 Side-by-Side 視頻盲測服務...")
+    # TEMPORARY DEBUG: Use simple server instead of FastAPI
+    from http.server import BaseHTTPRequestHandler, HTTPServer
     
-    # 從環境變數獲取端口，預設為8000
+    PORT = int(os.environ.get("PORT", 8080))
+    
+    class SimpleServer(BaseHTTPRequestHandler):
+        def do_GET(self):
+            print(f"--- [SIMPLE SERVER] Received GET request for: {self.path} ---")
+            
+            if self.path == "/api/health":
+                self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"status": "ok"}')
+            else:
+                self.send_response(404)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(b'{"error": "Not Found"}')
+    
+    print(f"--- [SIMPLE SERVER] Starting http.server on port {PORT} ---")
+    server_address = ("", PORT)
+    httpd = HTTPServer(server_address, SimpleServer)
+    
     try:
-        port = int(os.environ.get("PORT", "8000"))
-        print(f"🔧 使用端口: {port}")
-        print(f"🔧 PORT環境變數: {os.environ.get('PORT', '未設置')}")
-    except (ValueError, TypeError) as e:
-        print(f"❌ PORT環境變數錯誤: {e}")
-        port = 8000
-        print(f"🔧 使用預設端口: {port}")
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
     
-    print(f"📖 API 文檔: http://localhost:{port}/api/docs")
-    print("🎯 前端地址: http://localhost:3000")
-    
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=port,
-        reload=False,  # 生產環境關閉reload
-        log_level="info"
-    ) 
+    httpd.server_close()
+    print(f"--- [SIMPLE SERVER] Server stopped. ---") 
