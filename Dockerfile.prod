@@ -1,13 +1,17 @@
-# ... existing code ...
-# Copy the application code
+# Stage 1: Use a slim Python image for the base
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the application code, including the simple server
 COPY backend/ /app/
 
-# Add a script to be executed every time the container starts.
-COPY backend/start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# No dependencies needed for the simple server, so we skip poetry/pip install
 
 # Set the port that the container will listen on
 EXPOSE 8080
 
-# Command to run the application using the start script
-CMD ["/app/start.sh"]
+# Command to run the application using the simple python server for debugging
+# The -u flag ensures that python output is sent straight to stdout without buffering
+CMD ["python", "-u", "/app/main_very_simple.py"]
