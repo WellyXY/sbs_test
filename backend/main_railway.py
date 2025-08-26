@@ -601,6 +601,144 @@ async def get_evaluations():
         print(f"❌ 获取评估错误: {e}")
         return {"success": False, "error": f"获取评估失败: {str(e)}"}
 
+# 辅助函数：同步获取任务视频对数据
+def get_task_video_pairs_sync(task_id: str):
+    """同步获取任务的视频对数据，用于统计分析"""
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        return []
+    
+    # 如果任务已经有视频对数据，直接返回
+    if "video_pairs" in task:
+        return task["video_pairs"]
+    
+    # 否则动态生成（但这种情况下不会有随机化信息）
+    try:
+        # 暂时返回空列表，让统计功能在没有随机化信息时回退到简单统计
+        return []
+        
+    except Exception as e:
+        print(f"❌ 获取任务视频对错误: {e}")
+        return []
+
+# Statistics API端点
+@app.get("/api/statistics/{task_id}")
+async def get_task_statistics(task_id: str):
+    """获取任务统计数据"""
+    # 检查任务是否存在
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+    
+    # 获取该任务的评估数据和视频对映射
+    task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
+    
+    # 获取任务的视频对数据以了解随机化情况
+    task_video_pairs = []
+    try:
+        task_video_pairs = get_task_video_pairs_sync(task_id)
+    except:
+        task_video_pairs = []
+    
+    # 建立视频对ID到随机化信息的映射
+    pair_mapping = {}
+    has_randomization_info = False
+    
+    for pair in task_video_pairs:
+        if "is_swapped" in pair and "left_folder" in pair:
+            has_randomization_info = True
+            pair_mapping[pair["id"]] = {
+                "is_swapped": pair.get("is_swapped", False),
+                "left_folder": pair.get("left_folder", task["folder_a"]),
+                "right_folder": pair.get("right_folder", task["folder_b"])
+            }
+    
+    # 计算偏好统计
+    total_evaluations = len(task_evaluations)
+    preference_folder_a = 0  # 实际偏好文件夹A的数量
+    preference_folder_b = 0  # 实际偏好文件夹B的数量
+    ties = 0
+    
+    for evaluation in task_evaluations:
+        choice = evaluation["choice"]
+        pair_id = evaluation["video_pair_id"]
+        
+        if choice == "tie":
+            ties += 1
+        elif choice in ["A", "B"]:
+            if has_randomization_info and pair_id in pair_mapping:
+                # 使用随机化信息计算真实的文件夹偏好
+                pair_info = pair_mapping[pair_id]
+                
+                # 确定实际选择的文件夹
+                if choice == "A":  # 用户选择了左侧视频
+                    actual_folder = pair_info["left_folder"]
+                else:  # choice == "B", 用户选择了右侧视频
+                    actual_folder = pair_info["right_folder"]
+                
+                # 统计到对应的文件夹
+                if actual_folder == task["folder_a"]:
+                    preference_folder_a += 1
+                elif actual_folder == task["folder_b"]:
+                    preference_folder_b += 1
+            else:
+                # 回退到传统统计（假设A固定在左，B固定在右）
+                if choice == "A":
+                    preference_folder_a += 1
+                elif choice == "B":
+                    preference_folder_b += 1
+    
+    # 计算百分比
+    preference_a_percent = (preference_folder_a / total_evaluations * 100) if total_evaluations > 0 else 0
+    preference_b_percent = (preference_folder_b / total_evaluations * 100) if total_evaluations > 0 else 0
+    ties_percent = (ties / total_evaluations * 100) if total_evaluations > 0 else 0
+    
+    # 计算完成率（假设每个视频对需要1次评估）
+    completion_rate = (total_evaluations / task["video_pairs_count"] * 100) if task["video_pairs_count"] > 0 else 0
+    
+    statistics = {
+        "task_id": task_id,
+        "task_name": task["name"],
+        "total_evaluations": total_evaluations,
+        "video_pairs_count": task["video_pairs_count"],
+        "completion_rate": round(completion_rate, 1),
+        "preferences": {
+            "a_better": preference_folder_a,
+            "b_better": preference_folder_b,
+            "tie": ties,
+            "a_better_percent": round(preference_a_percent, 1),
+            "b_better_percent": round(preference_b_percent, 1),
+            "tie_percent": round(ties_percent, 1)
+        },
+        "folder_names": {
+            "folder_a": task["folder_a"],
+            "folder_b": task["folder_b"]
+        }
+    }
+    
+    return {"success": True, "data": statistics, "message": "Task statistics retrieved successfully"}
+
+@app.get("/api/statistics/")
+async def get_all_statistics():
+    """获取所有任务的统计概览"""
+    all_stats = []
+    
+    for task in tasks_storage:
+        task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task["id"])]
+        total_evaluations = len(task_evaluations)
+        completion_rate = (total_evaluations / task["video_pairs_count"] * 100) if task["video_pairs_count"] > 0 else 0
+        
+        all_stats.append({
+            "task_id": task["id"],
+            "task_name": task["name"],
+            "total_evaluations": total_evaluations,
+            "video_pairs_count": task["video_pairs_count"],
+            "completion_rate": round(completion_rate, 1),
+            "status": task["status"]
+        })
+    
+    return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
+
 # 其他API端點可以在这里添加...
 
 @app.exception_handler(404)
