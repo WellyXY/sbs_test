@@ -64,7 +64,7 @@ const ReviewResultsPage: React.FC = () => {
       console.log('🔧 DEBUG: Loading detailed results, Task ID:', taskId)
       
       // First check evaluation data
-      const evalResponse = await fetch(`https://sbstest-production.up.railway.app/api/evaluations/`)
+      const evalResponse = await fetch(`https://sbstest-production.up.railway.app/api/evaluations`)
       if (evalResponse.ok) {
         const evalResult = await evalResponse.json()
         console.log('🔧 DEBUG: All evaluation data:', evalResult)

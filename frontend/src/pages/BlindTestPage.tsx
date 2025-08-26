@@ -139,7 +139,7 @@ const BlindTestPage: React.FC = () => {
       setSubmitting(true)
       console.log('Submitting evaluation:', { video_pair_id: currentPair.id, choice: selectedChoice })
       
-      const response = await fetch('https://sbstest-production.up.railway.app/api/evaluations/', {
+      const response = await fetch('https://sbstest-production.up.railway.app/api/evaluations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
