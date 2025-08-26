@@ -259,12 +259,17 @@ const FolderManagePage: React.FC = () => {
       console.log('🔧 DEBUG: 文件列表響應:', response.data);
       
       if (response.data.success) {
-        setFolderFiles(response.data.data);
+        setFolderFiles(response.data.data.files || []);
+        console.log('🔧 DEBUG: 文件列表載入完成，文件數量:', response.data.data.files?.length || 0);
       } else {
         console.error('❌ DEBUG: 載入文件列表失敗:', response.data.error);
+        setFolderFiles([]);
       }
     } catch (error) {
       console.error('❌ DEBUG: 載入文件列表錯誤:', error);
+      setFolderFiles([]);  // 确保设置为空数组，避免页面空白
+      // 可选：显示错误提示
+      // alert('载入文件列表失败，请刷新页面重试');
     }
   };
 

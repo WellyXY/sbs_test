@@ -232,10 +232,13 @@ async def get_folder_files(folder_name: str):
         for filename in os.listdir(folder_path):
             file_path = os.path.join(folder_path, filename)
             if os.path.isfile(file_path):
+                # 获取文件创建时间
+                created_time = os.path.getctime(file_path)
                 files.append({
-                    "name": filename,
+                    "filename": filename,  # 匹配前端接口
                     "size": os.path.getsize(file_path),
-                    "url": f"/uploads/{folder_name}/{quote(filename)}"
+                    "path": f"/uploads/{folder_name}/{quote(filename)}",  # 匹配前端接口
+                    "created_time": created_time  # 添加创建时间
                 })
         
         return {
@@ -250,6 +253,7 @@ async def get_folder_files(folder_name: str):
         raise
     except Exception as e:
         print(f"❌ 獲取文件列表錯誤: {e}")
+        print(f"❌ 錯誤詳情: {traceback.format_exc()}")
         return {"success": False, "error": f"獲取文件列表失敗: {str(e)}"}
 
 @app.post("/api/folders/{folder_name}/upload")
