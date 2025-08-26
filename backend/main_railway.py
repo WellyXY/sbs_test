@@ -317,7 +317,10 @@ async def upload_files(folder_name: str, files: list[UploadFile] = File(...)):
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
-    return {"error": "未找到請求的資源", "status_code": 404}
+    return JSONResponse(
+        status_code=404,
+        content={"error": "未找到請求的資源", "status_code": 404}
+    )
 
 if __name__ == "__main__":
     print(f"🚀 启动Railway应用程序，端口: {PORT}")
