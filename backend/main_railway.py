@@ -124,7 +124,7 @@ evaluations_storage = load_evaluations()
 print(f"✅ 载入 {len(folders_storage)} 个文件夹")
 print(f"✅ 载入 {len(tasks_storage)} 个任务") 
 print(f"✅ 载入 {len(evaluations_storage)} 个评估")
-print(f"🔍 Volume测试: 当前时间 {time.time()}")
+print(f"🔍 Volume持久化测试: 重新部署时间 {time.time()}")
 print(f"🔍 Volume状态检查:")
 print(f"  - DATA_DIR ({BASE_DATA_DIR}) exists: {os.path.exists(BASE_DATA_DIR)}")
 if os.path.exists(BASE_DATA_DIR):
