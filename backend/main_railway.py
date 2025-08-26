@@ -741,6 +741,116 @@ async def get_all_statistics():
     
     return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
 
+@app.get("/api/tasks/{task_id}/detailed-results")
+async def get_task_detailed_results(task_id: str):
+    """获取任务的详细评估结果，用于回顾功能"""
+    # 检查任务是否存在
+    task = next((t for t in tasks_storage if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+    
+    try:
+        # 直接从任务数据获取视频对信息，避免循环调用
+        video_pairs = task.get("video_pairs", [])
+        
+        # 如果任务中没有video_pairs，尝试动态生成
+        if not video_pairs:
+            # 获取文件夹中的视频文件
+            folder_a_path = os.path.join(BASE_UPLOAD_DIR, task['folder_a'])
+            folder_b_path = os.path.join(BASE_UPLOAD_DIR, task['folder_b'])
+            
+            if os.path.exists(folder_a_path) and os.path.exists(folder_b_path):
+                video_files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'))]
+                video_files_b = [f for f in os.listdir(folder_b_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'))]
+                
+                # 简单匹配逻辑
+                for i, video_a in enumerate(video_files_a):
+                    if i < len(video_files_b):
+                        video_b = video_files_b[i]
+                        pair = {
+                            "id": f"{task_id}_pair_{i+1}",
+                            "video_a_path": f"/uploads/{task['folder_a']}/{video_a}",
+                            "video_b_path": f"/uploads/{task['folder_b']}/{video_b}",
+                            "video_a_name": video_a,
+                            "video_b_name": video_b,
+                            "left_folder": task['folder_a'],
+                            "right_folder": task['folder_b'],
+                            "is_swapped": False
+                        }
+                        video_pairs.append(pair)
+        
+        # 获取该任务的所有评估 - 修复过滤逻辑
+        task_evaluations = [e for e in evaluations_storage if task_id in e["video_pair_id"]]
+        print(f"🔧 DEBUG: 找到 {len(task_evaluations)} 个评估记录")
+        
+        # 创建视频对ID到评估的映射
+        evaluation_map = {e["video_pair_id"]: e for e in task_evaluations}
+        print(f"🔧 DEBUG: 评估映射: {list(evaluation_map.keys())}")
+        
+        # 建立详细结果列表
+        detailed_results = []
+        
+        for i, pair in enumerate(video_pairs):
+            pair_id = pair.get("id", f"{task_id}_pair_{i+1}")
+            evaluation = evaluation_map.get(pair_id)
+            
+            print(f"🔧 DEBUG: 视频对 {i}: pair_id={pair_id}, evaluation={evaluation}")
+            
+            # 确定实际的文件夹映射
+            left_folder = pair.get("left_folder", task["folder_a"])
+            right_folder = pair.get("right_folder", task["folder_b"])
+            is_swapped = pair.get("is_swapped", False)
+            
+            # 确定用户的选择对应的实际文件夹
+            actual_chosen_folder = None
+            if evaluation and evaluation["choice"] in ["A", "B"]:
+                if evaluation["choice"] == "A":
+                    actual_chosen_folder = left_folder
+                else:  # choice == "B"
+                    actual_chosen_folder = right_folder
+                print(f"🔧 DEBUG: 用户选择={evaluation['choice']}, 实际文件夹={actual_chosen_folder}")
+            
+            result_item = {
+                "pair_index": i + 1,
+                "pair_id": pair_id,
+                "video_a_path": pair.get("video_a_path", f"/uploads/{task['folder_a']}/{pair.get('video_a_name', '')}"),
+                "video_b_path": pair.get("video_b_path", f"/uploads/{task['folder_b']}/{pair.get('video_b_name', '')}"),
+                "video_a_name": pair.get("video_a_name", ""),
+                "video_b_name": pair.get("video_b_name", ""),
+                "left_folder": left_folder,
+                "right_folder": right_folder,
+                "is_swapped": is_swapped,
+                "user_choice": evaluation["choice"] if evaluation else None,
+                "actual_chosen_folder": actual_chosen_folder,
+                "evaluation_id": evaluation["id"] if evaluation else None,
+                "evaluation_timestamp": evaluation.get("created_time") if evaluation else None,
+                "is_evaluated": evaluation is not None
+            }
+            
+            detailed_results.append(result_item)
+        
+        # 计算总体统计
+        evaluated_count = len([r for r in detailed_results if r["is_evaluated"]])
+        
+        response_data = {
+            "task_id": task_id,
+            "task_name": task["name"],
+            "folder_a": task["folder_a"],
+            "folder_b": task["folder_b"],
+            "total_pairs": len(video_pairs),
+            "evaluated_pairs": evaluated_count,
+            "completion_rate": round((evaluated_count / len(video_pairs) * 100) if video_pairs else 0, 1),
+            "results": detailed_results
+        }
+        
+        return {"success": True, "data": response_data, "message": "Detailed evaluation results retrieved successfully"}
+        
+    except Exception as e:
+        print(f"❌ 获取详细结果错误: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to get detailed results: {str(e)}")
+
 # 其他API端點可以在这里添加...
 
 @app.exception_handler(404)
