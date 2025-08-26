@@ -756,8 +756,8 @@ async def get_task_detailed_results(task_id: str):
         # 如果任务中没有video_pairs，尝试动态生成
         if not video_pairs:
             # 获取文件夹中的视频文件
-            folder_a_path = os.path.join(BASE_UPLOAD_DIR, task['folder_a'])
-            folder_b_path = os.path.join(BASE_UPLOAD_DIR, task['folder_b'])
+            folder_a_path = os.path.join(UPLOAD_DIR, task['folder_a'])
+            folder_b_path = os.path.join(UPLOAD_DIR, task['folder_b'])
             
             if os.path.exists(folder_a_path) and os.path.exists(folder_b_path):
                 video_files_a = [f for f in os.listdir(folder_a_path) if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv', '.wmv', '.m4v'))]
