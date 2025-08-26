@@ -1,1 +1,1 @@
-web: cd backend && python -u main_railway.py 
+web: python -u main_railway.py 
