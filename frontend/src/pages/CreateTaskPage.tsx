@@ -44,7 +44,7 @@ const CreateTaskPage: React.FC = () => {
       
       if (response.data.success) {
         setFolders(response.data.data);
-        console.log('🔧 DEBUG: 載入資料夾成功:', response.data.data.length, '個資料夾');
+        console.log('🔧 DEBUG: Loading folders successful:', response.data.data.length, 'folders');
       } else {
         console.error('❌ DEBUG: 載入資料夾失敗:', response.data.error);
         alert('Failed to load folders: ' + response.data.error);

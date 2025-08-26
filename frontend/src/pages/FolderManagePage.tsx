@@ -103,10 +103,10 @@ const FolderManagePage: React.FC = () => {
       if (response.data.success) {
         setNewFolderName('');
         setShowCreateModal(false);
-        alert(response.data.message || '資料夾創建成功！');
+        alert(response.data.message || 'Folder created successfully!');
         await loadFolders();
       } else {
-        alert(response.data.error || '創建失敗');
+        alert(response.data.error || 'Creation failed');
       }
       
     } catch (error) {
@@ -288,14 +288,14 @@ const FolderManagePage: React.FC = () => {
           setSelectedFolder('');
           setFolderFiles([]);
         }
-        alert(response.data.message || '資料夾刪除成功！');
+        alert(response.data.message || 'Folder deleted successfully!');
         await loadFolders();
       } else {
-        alert(response.data.error || '刪除失敗');
+        alert(response.data.error || 'Deletion failed');
       }
     } catch (error) {
       console.error('❌ DEBUG: 刪除資料夾錯誤:', error);
-      alert('刪除失敗，請檢查網絡連接');
+      alert('Deletion failed, please check network connection');
     }
   };
 
@@ -421,7 +421,7 @@ const FolderManagePage: React.FC = () => {
                             folder.total_size += 50000000; // 假設50MB
                             setFolders([...folders]);
                             await loadFolderFiles(selectedFolder);
-                            alert('模擬上傳成功！添加了3個測試文件');
+                            alert('Mock upload successful! Added 3 test files');
                           }
                         } catch (error) {
                           console.error('模擬上傳錯誤:', error);
