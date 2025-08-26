@@ -452,21 +452,91 @@ async def create_task(data: dict):
 
 @app.get("/api/tasks/{task_id}")
 async def get_task(task_id: str):
-    """获取单个任务详情"""
+    """获取单个任务详情，包含动态生成的视频对"""
     try:
         task = next((t for t in tasks_storage if t["id"] == task_id), None)
         if not task:
             raise HTTPException(status_code=404, detail="任务不存在")
         
+        # 生成视频对
+        video_pairs = generate_video_pairs(task)
+        
+        # 返回包含视频对的任务数据
+        task_with_pairs = task.copy()
+        task_with_pairs["video_pairs"] = video_pairs
+        
+        print(f"✅ 任务 {task_id} 生成了 {len(video_pairs)} 个视频对")
+        
         return {
             "success": True,
-            "data": task
+            "data": task_with_pairs
         }
     except HTTPException:
         raise
     except Exception as e:
         print(f"❌ 获取任务错误: {e}")
+        print(f"❌ 错误详情: {traceback.format_exc()}")
         return {"success": False, "error": f"获取任务失败: {str(e)}"}
+
+def generate_video_pairs(task):
+    """为任务生成视频对"""
+    try:
+        folder_a_name = task["folder_a"]
+        folder_b_name = task["folder_b"]
+        
+        print(f"🔧 生成视频对: {folder_a_name} vs {folder_b_name}")
+        
+        # 获取两个文件夹的文件列表
+        folder_a_path = os.path.join(UPLOAD_DIR, folder_a_name)
+        folder_b_path = os.path.join(UPLOAD_DIR, folder_b_name)
+        
+        if not os.path.exists(folder_a_path) or not os.path.exists(folder_b_path):
+            print(f"❌ 文件夹不存在: {folder_a_path} 或 {folder_b_path}")
+            return []
+        
+        # 获取视频文件
+        files_a = [f for f in os.listdir(folder_a_path) 
+                  if os.path.isfile(os.path.join(folder_a_path, f)) and 
+                  any(f.lower().endswith(ext) for ext in ['.mp4', '.mov', '.avi', '.mkv', '.webm'])]
+        
+        files_b = [f for f in os.listdir(folder_b_path) 
+                  if os.path.isfile(os.path.join(folder_b_path, f)) and 
+                  any(f.lower().endswith(ext) for ext in ['.mp4', '.mov', '.avi', '.mkv', '.webm'])]
+        
+        print(f"🔧 文件夹A有 {len(files_a)} 个视频: {files_a}")
+        print(f"🔧 文件夹B有 {len(files_b)} 个视频: {files_b}")
+        
+        video_pairs = []
+        
+        # 简单匹配：按索引配对
+        max_pairs = min(len(files_a), len(files_b))
+        
+        for i in range(max_pairs):
+            video_a = files_a[i]
+            video_b = files_b[i]
+            
+            pair_id = f"pair_{task['id']}_{i}"
+            
+            video_pair = {
+                "id": pair_id,
+                "task_id": task["id"],
+                "video_a_path": f"/uploads/{folder_a_name}/{quote(video_a)}",
+                "video_b_path": f"/uploads/{folder_b_name}/{quote(video_b)}",
+                "video_a_name": video_a,
+                "video_b_name": video_b,
+                "is_evaluated": False
+            }
+            
+            video_pairs.append(video_pair)
+            print(f"✅ 创建视频对 {i+1}: {video_a} vs {video_b}")
+        
+        print(f"✅ 总共生成了 {len(video_pairs)} 个视频对")
+        return video_pairs
+        
+    except Exception as e:
+        print(f"❌ 生成视频对错误: {e}")
+        print(f"❌ 错误详情: {traceback.format_exc()}")
+        return []
 
 # 其他API端點（评估等）可以在这里添加...
 
