@@ -230,8 +230,11 @@ const BlindTestPage: React.FC = () => {
 
   // Get video URL
   const getVideoUrl = (path: string) => {
-    const fullUrl = `https://sbstest-production.up.railway.app/${path}`
+    // Remove leading slash to prevent double slashes
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path
+    const fullUrl = `https://sbstest-production.up.railway.app/${cleanPath}`
     console.log('🔧 DEBUG: getVideoUrl - 輸入路徑:', path)
+    console.log('🔧 DEBUG: getVideoUrl - 清理後路徑:', cleanPath)
     console.log('🔧 DEBUG: getVideoUrl - 完整URL:', fullUrl)
     return fullUrl
   }
