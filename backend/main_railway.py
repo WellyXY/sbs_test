@@ -631,7 +631,8 @@ async def get_task_statistics(task_id: str):
         raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
     
     # 获取该任务的评估数据和视频对映射
-    task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task_id)]
+    # 修复：video_pair_id格式是 "pair_task_1_1756203256_0"，需要包含task_id
+    task_evaluations = [e for e in evaluations_storage if task_id in e["video_pair_id"]]
     
     # 获取任务的视频对数据以了解随机化情况
     task_video_pairs = []
@@ -724,7 +725,8 @@ async def get_all_statistics():
     all_stats = []
     
     for task in tasks_storage:
-        task_evaluations = [e for e in evaluations_storage if e["video_pair_id"].startswith(task["id"])]
+        # 修复：video_pair_id格式是 "pair_task_1_1756203256_0"，需要包含task_id
+        task_evaluations = [e for e in evaluations_storage if task["id"] in e["video_pair_id"]]
         total_evaluations = len(task_evaluations)
         completion_rate = (total_evaluations / task["video_pairs_count"] * 100) if task["video_pairs_count"] > 0 else 0
         
