@@ -3,7 +3,7 @@ import axios from 'axios';
 // Debug: 檢查API連接
 console.log('🔧 DEBUG: FolderManagePage 載入，準備測試API連接...');
 
-// 直接使用Railway API配置
+// 强制使用HTTPS的Railway API配置
 const API_BASE_URL = 'https://sbstest-production.up.railway.app';
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,6 +11,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // 强制HTTPS
+  httpsAgent: false,
 });
 
 // 測試API連接
@@ -199,8 +201,8 @@ const FolderManagePage: React.FC = () => {
             reject(new Error('Upload failed: Timeout'));
           });
           
-          // 設置請求
-          xhr.open('POST', `https://sbstest-production.up.railway.app/api/folders/${selectedFolder}/upload`);
+          // 設置請求 - 强制使用HTTPS
+          xhr.open('POST', `${API_BASE_URL}/api/folders/${selectedFolder}/upload`);
           xhr.timeout = 60000; // 60秒超時
           xhr.send(formData);
         });

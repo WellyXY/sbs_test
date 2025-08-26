@@ -1,8 +1,8 @@
 import axios from 'axios'
 import { Task, VideoPair, Evaluation, FolderSelection, ApiResponse } from '../types'
 
-// API 基本配置
-const API_BASE_URL = 'https://sbstest-production.up.railway.app' // 臨時硬編碼測試
+// API 基本配置 - 强制HTTPS
+const API_BASE_URL = 'https://sbstest-production.up.railway.app'
 console.log('🔧 DEBUG: API_BASE_URL =', API_BASE_URL)
 console.log('🔧 DEBUG: ENV =', import.meta.env.VITE_API_URL)
 
@@ -12,6 +12,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // 强制HTTPS，禁用HTTP重定向
+  maxRedirects: 0,
 })
 
 // 請求攔截器
