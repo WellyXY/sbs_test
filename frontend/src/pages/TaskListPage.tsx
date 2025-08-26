@@ -26,7 +26,7 @@ const TaskListPage: React.FC = () => {
       setLoading(true)
       console.log('🔧 DEBUG: Loading task list...')
       
-      const response = await fetch('https://sbstest-production.up.railway.app/api/tasks/')
+      const response = await fetch('https://sbstest-production.up.railway.app/api/tasks')
       console.log('🔧 DEBUG: API response status:', response.status)
       
       if (response.ok) {
