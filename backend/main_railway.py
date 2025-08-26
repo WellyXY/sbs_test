@@ -125,6 +125,17 @@ print(f"✅ 载入 {len(folders_storage)} 个文件夹")
 print(f"✅ 载入 {len(tasks_storage)} 个任务") 
 print(f"✅ 载入 {len(evaluations_storage)} 个评估")
 print(f"🔍 Volume测试: 当前时间 {time.time()}")
+print(f"🔍 Volume状态检查:")
+print(f"  - DATA_DIR ({BASE_DATA_DIR}) exists: {os.path.exists(BASE_DATA_DIR)}")
+if os.path.exists(BASE_DATA_DIR):
+    print(f"  - DATA_DIR writable: {os.access(BASE_DATA_DIR, os.W_OK)}")
+    try:
+        usage = shutil.disk_usage(BASE_DATA_DIR)
+        print(f"  - Available space: {usage.free / (1024**3):.2f}GB free of {usage.total / (1024**3):.2f}GB total")
+    except Exception as e:
+        print(f"  - Space check error: {e}")
+else:
+    print(f"  - DATA_DIR not found - Volume may not be mounted!")
 
 # 临时方案：如果没有数据，创建示例数据
 if len(folders_storage) == 0:
