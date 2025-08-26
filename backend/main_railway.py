@@ -539,7 +539,58 @@ def generate_video_pairs(task):
         print(f"❌ 错误详情: {traceback.format_exc()}")
         return []
 
-# 其他API端點（评估等）可以在这里添加...
+@app.post("/api/evaluations")
+async def create_evaluation(data: dict):
+    """创建评估结果"""
+    try:
+        video_pair_id = data.get("video_pair_id", "")
+        choice = data.get("choice", "")
+        is_blind = data.get("is_blind", True)
+        
+        print(f"🔧 创建评估: video_pair_id={video_pair_id}, choice={choice}")
+        
+        if not video_pair_id or not choice:
+            return {"success": False, "error": "缺少必要参数"}
+        
+        # 创建评估对象
+        evaluation = {
+            "id": f"eval_{len(evaluations_storage) + 1}_{int(time.time())}",
+            "video_pair_id": video_pair_id,
+            "choice": choice,
+            "is_blind": is_blind,
+            "created_time": int(time.time())
+        }
+        
+        evaluations_storage.append(evaluation)
+        save_evaluations(evaluations_storage)
+        
+        print(f"✅ 评估已保存: {evaluation['id']}")
+        
+        return {
+            "success": True,
+            "data": evaluation,
+            "message": "评估提交成功"
+        }
+        
+    except Exception as e:
+        print(f"❌ 创建评估错误: {e}")
+        print(f"❌ 错误详情: {traceback.format_exc()}")
+        return {"success": False, "error": f"创建评估失败: {str(e)}"}
+
+@app.get("/api/evaluations")
+async def get_evaluations():
+    """获取所有评估结果"""
+    try:
+        return {
+            "success": True,
+            "data": evaluations_storage,
+            "count": len(evaluations_storage)
+        }
+    except Exception as e:
+        print(f"❌ 获取评估错误: {e}")
+        return {"success": False, "error": f"获取评估失败: {str(e)}"}
+
+# 其他API端點可以在这里添加...
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
