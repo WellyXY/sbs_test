@@ -125,6 +125,27 @@ print(f"✅ 载入 {len(folders_storage)} 个文件夹")
 print(f"✅ 载入 {len(tasks_storage)} 个任务") 
 print(f"✅ 载入 {len(evaluations_storage)} 个评估")
 
+# 临时方案：如果没有数据，创建示例数据
+if len(folders_storage) == 0:
+    print("⚠️ 检测到数据丢失，创建示例数据...")
+    sample_folders = [
+        {
+            "name": "示例文件夹A",
+            "created_time": time.time(),
+            "video_count": 0,
+            "total_size": 0
+        },
+        {
+            "name": "示例文件夹B", 
+            "created_time": time.time(),
+            "video_count": 0,
+            "total_size": 0
+        }
+    ]
+    folders_storage.extend(sample_folders)
+    save_folders(folders_storage)
+    print(f"✅ 创建了 {len(sample_folders)} 个示例文件夹")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用程序生命周期管理"""
