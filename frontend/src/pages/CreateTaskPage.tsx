@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// 使用與taskApi相同的配置
+// 强制使用HTTPS的API配置
 const API_BASE_URL = 'https://sbstest-production.up.railway.app';
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -10,6 +10,8 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // 强制HTTPS，禁用重定向
+  maxRedirects: 0,
 });
 
 interface Folder {
@@ -37,7 +39,7 @@ const CreateTaskPage: React.FC = () => {
       setLoading(true);
       console.log('🔧 DEBUG: 載入Create Task頁面的資料夾列表...');
       
-      const response = await api.get('/api/folders/');
+      const response = await api.get('/api/folders');
       console.log('🔧 DEBUG: Create Task資料夾API響應:', response.data);
       
       if (response.data.success) {
@@ -78,7 +80,7 @@ const CreateTaskPage: React.FC = () => {
       setCreating(true);
       console.log('🔧 DEBUG: 創建任務:', { taskName, folderA, folderB, isBlind });
       
-      const response = await api.post('/api/tasks/', {
+      const response = await api.post('/api/tasks', {
           name: taskName,
           folder_a: folderA,
           folder_b: folderB,

@@ -121,6 +121,10 @@ folders_storage = load_folders()
 tasks_storage = load_tasks()
 evaluations_storage = load_evaluations()
 
+print(f"✅ 载入 {len(folders_storage)} 个文件夹")
+print(f"✅ 载入 {len(tasks_storage)} 个任务") 
+print(f"✅ 载入 {len(evaluations_storage)} 个评估")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用程序生命周期管理"""
@@ -346,7 +350,104 @@ async def delete_folder(folder_name: str):
         print(f"❌ 刪除資料夾錯誤: {e}")
         raise HTTPException(status_code=500, detail=f"刪除資料夾失敗: {str(e)}")
 
-# 其他API端點（任务、评估等）可以在这里添加...
+# ============ 任务相关API ============
+
+@app.get("/api/tasks")
+async def get_tasks():
+    """获取所有任务列表"""
+    try:
+        return {
+            "success": True,
+            "data": tasks_storage,
+            "count": len(tasks_storage)
+        }
+    except Exception as e:
+        print(f"❌ 获取任务列表错误: {e}")
+        return {"success": False, "error": f"获取任务列表失败: {str(e)}"}
+
+@app.post("/api/tasks")
+async def create_task(data: dict):
+    """创建新任务"""
+    try:
+        task_name = data.get("name", "").strip()
+        folder_a = data.get("folder_a", "").strip() 
+        folder_b = data.get("folder_b", "").strip()
+        is_blind = data.get("is_blind", True)
+        description = data.get("description", "").strip()
+        
+        # 验证输入
+        if not task_name:
+            return {"success": False, "error": "任務名稱不能為空"}
+        
+        if not folder_a or not folder_b:
+            return {"success": False, "error": "請選擇兩個資料夾"}
+        
+        if folder_a == folder_b:
+            return {"success": False, "error": "請選擇兩個不同的資料夾"}
+        
+        # 检查文件夹是否存在
+        folder_a_obj = next((f for f in folders_storage if f["name"] == folder_a), None)
+        folder_b_obj = next((f for f in folders_storage if f["name"] == folder_b), None)
+        
+        if not folder_a_obj:
+            return {"success": False, "error": f"資料夾 '{folder_a}' 不存在"}
+        
+        if not folder_b_obj:
+            return {"success": False, "error": f"資料夾 '{folder_b}' 不存在"}
+        
+        # 计算视频对数量
+        video_pairs_count = min(folder_a_obj["video_count"], folder_b_obj["video_count"])
+        
+        # 创建任务对象
+        new_task = {
+            "id": f"task_{len(tasks_storage) + 1}_{int(time.time())}",
+            "name": task_name,
+            "description": description,
+            "folder_a": folder_a,
+            "folder_b": folder_b,
+            "is_blind": is_blind,
+            "video_pairs_count": video_pairs_count,
+            "status": "active",
+            "created_time": int(time.time()),
+            "total_evaluations": 0,
+            "completed_evaluations": 0
+        }
+        
+        tasks_storage.append(new_task)
+        save_tasks(tasks_storage)  # 持久化保存
+        
+        print(f"✅ 创建任务: {task_name}")
+        
+        return {
+            "success": True,
+            "data": new_task,
+            "message": f"任務 '{task_name}' 創建成功"
+        }
+        
+    except Exception as e:
+        print(f"❌ 创建任务错误: {e}")
+        print(f"❌ 错误详情: {traceback.format_exc()}")
+        return {"success": False, "error": f"创建任务失败: {str(e)}"}
+
+@app.get("/api/tasks/{task_id}")
+async def get_task(task_id: str):
+    """获取单个任务详情"""
+    try:
+        task = next((t for t in tasks_storage if t["id"] == task_id), None)
+        if not task:
+            raise HTTPException(status_code=404, detail="任务不存在")
+        
+        return {
+            "success": True,
+            "data": task
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 获取任务错误: {e}")
+        return {"success": False, "error": f"获取任务失败: {str(e)}"}
+
+# 其他API端點（评估等）可以在这里添加...
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
