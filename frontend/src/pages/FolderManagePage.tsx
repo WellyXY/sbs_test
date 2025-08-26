@@ -68,7 +68,7 @@ const FolderManagePage: React.FC = () => {
       setLoading(true);
       console.log('🔧 DEBUG: 開始載入資料夾列表...');
       
-      const response = await api.get('/api/folders/');
+      const response = await api.get('/api/folders');
       console.log('🔧 DEBUG: 資料夾API響應:', response.data);
       
       if (response.data.success) {
@@ -94,7 +94,7 @@ const FolderManagePage: React.FC = () => {
       setCreating(true);
       console.log('🔧 DEBUG: 創建資料夾:', newFolderName);
       
-      const response = await api.post('/api/folders/create', {
+      const response = await api.post('/api/folders', {
           name: newFolderName.trim()
       });
 

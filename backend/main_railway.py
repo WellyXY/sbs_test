@@ -313,6 +313,35 @@ async def upload_files(folder_name: str, files: list[UploadFile] = File(...)):
         print(f"❌ 上傳錯誤: {e}")
         raise HTTPException(status_code=500, detail=f"上傳失敗: {str(e)}")
 
+@app.delete("/api/folders/{folder_name}")
+async def delete_folder(folder_name: str):
+    """刪除資料夾"""
+    try:
+        # 檢查資料夾是否存在
+        folder = next((f for f in folders_storage if f["name"] == folder_name), None)
+        if not folder:
+            raise HTTPException(status_code=404, detail=f"資料夾 '{folder_name}' 不存在")
+        
+        # 刪除物理目錄
+        folder_path = os.path.join(UPLOAD_DIR, folder_name)
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path)
+            print(f"✅ 刪除物理目錄: {folder_path}")
+        
+        # 從存儲中移除資料夾記錄
+        folders_storage.remove(folder)
+        save_folders(folders_storage)
+        
+        return {
+            "success": True,
+            "message": f"成功刪除資料夾 '{folder_name}'"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 刪除資料夾錯誤: {e}")
+        raise HTTPException(status_code=500, detail=f"刪除資料夾失敗: {str(e)}")
+
 # 其他API端點（任务、评估等）可以在这里添加...
 
 @app.exception_handler(404)
