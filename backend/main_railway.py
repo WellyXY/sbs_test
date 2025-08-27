@@ -741,6 +741,61 @@ async def get_all_statistics():
     
     return {"success": True, "data": all_stats, "message": "All task statistics retrieved successfully"}
 
+@app.delete("/api/tasks/{task_id}")
+async def delete_task(task_id: str):
+    """删除任务及其相关的评估数据"""
+    try:
+        # 检查任务是否存在
+        task_index = None
+        for i, task in enumerate(tasks_storage):
+            if task["id"] == task_id:
+                task_index = i
+                break
+        
+        if task_index is None:
+            raise HTTPException(status_code=404, detail=f"Task '{task_id}' not found")
+        
+        # 获取任务信息用于日志
+        task = tasks_storage[task_index]
+        print(f"🔧 删除任务: {task_id} (名称: {task['name']})")
+        
+        # 删除任务
+        deleted_task = tasks_storage.pop(task_index)
+        
+        # 删除相关的评估数据
+        deleted_evaluations = []
+        evaluations_to_keep = []
+        
+        for evaluation in evaluations_storage:
+            if task_id in evaluation["video_pair_id"]:
+                deleted_evaluations.append(evaluation)
+            else:
+                evaluations_to_keep.append(evaluation)
+        
+        # 更新评估存储
+        evaluations_storage[:] = evaluations_to_keep
+        
+        # 保存更新后的数据
+        save_tasks(tasks_storage)
+        save_evaluations(evaluations_storage)
+        
+        print(f"✅ 成功删除任务 {task_id}")
+        print(f"✅ 删除了 {len(deleted_evaluations)} 个相关评估")
+        
+        return {
+            "success": True, 
+            "message": f"Task '{deleted_task['name']}' deleted successfully",
+            "deleted_evaluations": len(deleted_evaluations)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ 删除任务错误: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to delete task: {str(e)}")
+
 @app.get("/api/tasks/{task_id}/detailed-results")
 async def get_task_detailed_results(task_id: str):
     """获取任务的详细评估结果，用于回顾功能"""
